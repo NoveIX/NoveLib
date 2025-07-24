@@ -41,9 +41,7 @@ function Get-All {
     if ($ReadOnly) { $params['ReadOnly'] = $true }
 
     if ($File -or $Dir) {
-        try {
-            return Get-ChildItem @params
-        }
+        try { return Get-ChildItem @params }
         catch {
             return Get-ChildItem -LiteralPath $Path -Recurse -Force | Where-Object {
                 ($Hide -and ($_.Attributes -band [System.IO.FileAttributes]::Hidden)) -or
@@ -51,7 +49,5 @@ function Get-All {
             }
         }
     }
-    elseif ($Bytes) {
-        return ($Array | Measure-Object -Property Length -Sum).Sum
-    }
+    elseif ($Bytes) { return ($Array | Measure-Object -Property Length -Sum).Sum }
 }

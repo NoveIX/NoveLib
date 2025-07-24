@@ -3,17 +3,15 @@
 function Test-String {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet("IsNullOrEmpty")]
-        [string]$Mode,
+        [Parameter(Mandatory = $true, ParameterSetName = 'IsNullOrEmpty')]
+        [switch]$IsNullOrEmpty,
 
         [Parameter(Mandatory = $true)]
         [string]$InputString
     )
 
-    switch ($Mode) {
-        "IsNullOrEmpty" {
-            return [string]::IsNullOrEmpty($InputString)
-        }
+    if ($IsNullOrEmpty) {
+        return [string]::IsNullOrEmpty($InputString)
     }
 }
+
