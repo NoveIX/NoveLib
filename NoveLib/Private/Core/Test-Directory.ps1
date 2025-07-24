@@ -3,13 +3,13 @@
 function Test-Directory {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "Exists")]
         [switch]$Exists,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "Ensure")]
         [switch]$Ensure,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "IsEmptyOrMissing")]
         [switch]$IsEmptyOrMissing,
 
         [Parameter(Mandatory = $true)]
