@@ -18,7 +18,7 @@ function Test-Directory {
 
         "Ensure" {
             if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
-                New-Item -Path $Path -ItemType Directory | Out-Null
+                New-Directory -Path $Path -Silence -Force
                 return $true
             }
             return $false
