@@ -4,8 +4,22 @@ function New-Directory {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Path
+        [string]$Path,
+
+        [switch]$Silence,
+        [switch]$Force
     )
 
-    New-Item -Path $Path -ItemType Directory -Force | Out-Null
+    if ($Silence) {
+        New-Item -Path $Path -ItemType Directory | Out-Null
+    }
+    elseif ($Force) {
+        New-Item -Path $Path -ItemType Directory -Force
+    }
+    elseif ($Silence -and $Force) {
+        New-Item -Path $Path -ItemType Directory -Force | Out-Null
+    }
+    else {
+        New-Item -Path $Path -ItemType Directory
+    }
 }
