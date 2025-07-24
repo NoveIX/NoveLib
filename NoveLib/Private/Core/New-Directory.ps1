@@ -19,7 +19,5 @@ function New-Directory {
 
     $result = New-Item @params
 
-    if (-not $Silence) {
-        return $result
-    }
+    if (-not $Silence) { return $result }
 }

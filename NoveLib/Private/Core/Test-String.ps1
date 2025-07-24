@@ -10,8 +10,6 @@ function Test-String {
         [string]$InputString
     )
 
-    if ($IsNullOrEmpty) {
-        return [string]::IsNullOrEmpty($InputString)
-    }
+    if ($IsNullOrEmpty) { return [string]::IsNullOrEmpty($InputString) }
 }
 
