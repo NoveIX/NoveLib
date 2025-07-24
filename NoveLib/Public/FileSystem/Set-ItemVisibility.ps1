@@ -19,12 +19,12 @@ function Set-ItemVisibility {
     [System.IO.FileSystemInfo]$item = Get-Item -LiteralPath $Path -Force
 
     if ($Hide) {
-        $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden
+        return $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden
     }
     elseif ($Show) {
-        $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden)
+        return $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden)
     }
     elseif ($Toggle) {
-        $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden
+        return $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden
     }
 }
