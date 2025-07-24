@@ -4,60 +4,52 @@ function Get-All {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = "Files")]
-        [switch]$Files,
+        [switch]$File,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
         [switch]$Dir,
 
-        [Parameter(Mandatory = $true, ParameterSetName = "Hide")]
+        [Parameter(ParameterSetName = "Files")]
+        [Parameter(ParameterSetName = "Dir")]
         [switch]$Hide,
 
-        [Parameter(Mandatory = $true, ParameterSetName = "ReadOnly")]
+        [Parameter(ParameterSetName = "Files")]
+        [Parameter(ParameterSetName = "Dir")]
         [switch]$ReadOnly,
-
-        [Parameter(Mandatory = $true, ParameterSetName = "All")]
-        [switch]$All,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
         [switch]$Bytes,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Files")]
         [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
-        [Parameter(Mandatory = $true, ParameterSetName = "Hide")]
-        [Parameter(Mandatory = $true, ParameterSetName = "ReadOnly")]
-        [Parameter(Mandatory = $true, ParameterSetName = "All")]
+        [Parameter(Mandatory = $true, ParameterSetName = "IOFile")]
         [string]$Path,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
         [object[]]$Array
     )
 
-    if ($Files) {
-        return Get-ChildItem -LiteralPath $Path -Recurse -File -Force
+    $arguments = @{
+        LiteralPath = $Path
+        Recurse     = $true
+        Force       = $true
     }
-    elseif ($Dir) {
-        return Get-ChildItem -LiteralPath $Path -Recurse -Directory -Force
-    }
-    elseif ($Hide) {
+
+    if ($File) { $arguments['File'] = $true }
+    if ($Dir) { $arguments['Directory'] = $true }
+    if ($Hide) { $arguments['Hidden'] = $true }
+    if ($ReadOnly) { $arguments['ReadOnly'] = $true }
+
+    if ($PSCmdlet.ParameterSetName -eq "IOFile") {
         try {
-            return Get-ChildItem -LiteralPath $Path -Recurse -Hidden -Force
+            return Get-ChildItem @arguments
         }
         catch {
-            return Get-ChildItem -LiteralPath $Path -Recurse -Force |
-            Where-Object { $_.Attributes -band [System.IO.FileAttributes]::Hidden }
+            return Get-ChildItem -LiteralPath $Path -Recurse -Force | Where-Object {
+                ($Hide -and ($_.Attributes -band [System.IO.FileAttributes]::Hidden)) -or
+                ($ReadOnly -and ($_.Attributes -band [System.IO.FileAttributes]::ReadOnly))
+            }
         }
-    }
-    elseif ($ReadOnly) {
-        try {
-            return Get-ChildItem -LiteralPath $Path -Recurse -ReadOnly -Force
-        }
-        catch {
-            return Get-ChildItem -LiteralPath $Path -Recurse -Force |
-            Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReadOnly }
-        }
-    }
-    elseif ($All) {
-        Get-ChildItem -LiteralPath $Path -Recurse -Force
     }
     elseif ($Bytes) {
         return ($Array | Measure-Object -Property Length -Sum).Sum
