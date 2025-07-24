@@ -8,7 +8,7 @@ function Test-ItemIsHidden {
     )
 
     # Retrieve the directory item
-    $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+    $item = Get-Item -LiteralPath $Path -Force
 
     # Return True if the directory is hidden, False otherwise
     return ($item.Attributes -band [System.IO.FileAttributes]::Hidden) -ne 0
