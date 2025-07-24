@@ -4,7 +4,6 @@ function Test-ItemIsHidden {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
         [string]$Path  # The exact path of the directory
     )
 

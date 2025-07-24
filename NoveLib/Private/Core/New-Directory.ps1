@@ -4,7 +4,6 @@ function New-Directory {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
         [string]$Path
     )
 
