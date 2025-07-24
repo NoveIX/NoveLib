@@ -40,7 +40,7 @@ function Get-All {
     if ($Hide) { $params['Hidden'] = $true }
     if ($ReadOnly) { $params['ReadOnly'] = $true }
 
-    if ($PSCmdlet.ParameterSetName -eq "IOFile") {
+    if ($File -or $Dir) {
         try {
             return Get-ChildItem @params
         }
