@@ -10,16 +10,16 @@ function New-Directory {
         [switch]$Force
     )
 
-    if ($Silence) {
-        New-Item -Path $Path -ItemType Directory | Out-Null
+    $params = @{
+        Path     = $Path
+        ItemType = 'Directory'
     }
-    elseif ($Force) {
-        New-Item -Path $Path -ItemType Directory -Force
-    }
-    elseif ($Silence -and $Force) {
-        New-Item -Path $Path -ItemType Directory -Force | Out-Null
-    }
-    else {
-        New-Item -Path $Path -ItemType Directory
+
+    if ($Force) { $params['Force'] = $true }
+
+    $result = New-Item @params
+
+    if (-not $Silence) {
+        return $result
     }
 }

@@ -29,20 +29,20 @@ function Get-All {
         [object[]]$Array
     )
 
-    $arguments = @{
+    $params = @{
         LiteralPath = $Path
         Recurse     = $true
         Force       = $true
     }
 
-    if ($File) { $arguments['File'] = $true }
-    if ($Dir) { $arguments['Directory'] = $true }
-    if ($Hide) { $arguments['Hidden'] = $true }
-    if ($ReadOnly) { $arguments['ReadOnly'] = $true }
+    if ($File) { $params['File'] = $true }
+    if ($Dir) { $params['Directory'] = $true }
+    if ($Hide) { $params['Hidden'] = $true }
+    if ($ReadOnly) { $params['ReadOnly'] = $true }
 
     if ($PSCmdlet.ParameterSetName -eq "IOFile") {
         try {
-            return Get-ChildItem @arguments
+            return Get-ChildItem @params
         }
         catch {
             return Get-ChildItem -LiteralPath $Path -Recurse -Force | Where-Object {
