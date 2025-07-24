@@ -102,7 +102,7 @@ function Copy-FileProgress {
     }
 
     # Ensure destination root directory exists
-    Test-Directory -Mode Ensure -Path $Destination | Out-Null
+    Test-Directory -Ensure -Path $Destination | Out-Null
 
     # Initialize progress tracking
     [int]$currentFile = 0
