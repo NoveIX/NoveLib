@@ -4,32 +4,33 @@ function Test-Directory {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateSet("Exists", "Ensure", "IsEmptyOrMissing")]
-        [string]$Mode,
+        [switch]$Exists,
+
+        [Parameter(Mandatory = $true)]
+        [switch]$Ensure,
+
+        [Parameter(Mandatory = $true)]
+        [switch]$IsEmptyOrMissing,
 
         [Parameter(Mandatory = $true)]
         [string]$Path
     )
 
-    switch ($Mode) {
-        "Exists" {
-            return Test-Path -LiteralPath $Path -PathType Container
+    if ($Exists) {
+        return Test-Path -LiteralPath $Path -PathType Container
+    }
+    elseif ($Ensure) {
+        if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+            New-Directory -Path $Path -Silence -Force
+            return $true
         }
-
-        "Ensure" {
-            if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
-                New-Directory -Path $Path -Silence -Force
-                return $true
-            }
-            return $false
+        return $false
+    }
+    elseif ($IsEmptyOrMissing) {
+        if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+            return $true
         }
-
-        "IsEmptyOrMissing" {
-            if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
-                return $true
-            }
-            $items = Get-ChildItem -LiteralPath $Path -Force
-            return ($items.Count -eq 0)
-        }
+        $items = Get-ChildItem -LiteralPath $Path -Force
+        return ($items.Count -eq 0)
     }
 }
