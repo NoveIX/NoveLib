@@ -51,11 +51,9 @@ function Copy-FileDisplayMode {
     [string]$totalReadable = Convert-ByteToSizeString -Byte $totalBytes -DecimalPlaces $DecimalPlaces
 
     # Select Display mode
-    switch ($DisplayMode) {
-        "FileOnly" { $status = "File $currentFile of $totalFiles ($percentString `%)" }
-        "ByteOnly" { $status = "Copied $currentReadable of $totalReadable ($percentString `%)" }
-        "FileAndByte" { $status = "File $currentFile of $totalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
-    }
+    if ($DisplayMode -eq 'FileOnly') { $status = "File $currentFile of $totalFiles ($percentString `%)" }
+    elseif ($DisplayMode -eq 'ByteOnly') { $status = "Copied $currentReadable of $totalReadable ($percentString `%)" }
+    elseif ($DisplayMode -eq 'FileAndByte') { $status = "File $currentFile of $totalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
 
     # Add file information
     if ($DisplayFileInfo) {
