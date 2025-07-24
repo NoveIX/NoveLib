@@ -35,20 +35,20 @@ function Copy-FileDisplayMode {
     )
 
     # Definition
-    $status = $null
-    $fileName = $File.Name
-    $fileLength = $File.Length
+    [string]$status = $null
+    [string]$fileName = $File.Name
+    [int]$fileLength = $File.Length
 
     # Calculate percent
-    $averagePercent = (((($currentFile / $totalFiles) + ($currentBytes / $totalBytes)) / 2) * 100)
+    [double]$averagePercent = (((($currentFile / $totalFiles) + ($currentBytes / $totalBytes)) / 2) * 100)
 
     # Compute and format progress
-    $percentComplete = [math]::Round($averagePercent, $DecimalPlaces)
-    $percentString = "{0:N$DecimalPlaces}" -f $percentComplete
+    [double]$percentComplete = [math]::Round($averagePercent, $DecimalPlaces)
+    [string]$percentString = "{0:N$DecimalPlaces}" -f $percentComplete
 
     # Convert Bytes in human redable size
-    $currentReadable = Convert-ByteToSizeString -Byte $currentBytes -DecimalPlaces $DecimalPlaces
-    $totalReadable = Convert-ByteToSizeString -Byte $totalBytes -DecimalPlaces $DecimalPlaces
+    [string]$currentReadable = Convert-ByteToSizeString -Byte $currentBytes -DecimalPlaces $DecimalPlaces
+    [string]$totalReadable = Convert-ByteToSizeString -Byte $totalBytes -DecimalPlaces $DecimalPlaces
 
     # Select Display mode
     switch ($DisplayMode) {
@@ -60,7 +60,7 @@ function Copy-FileDisplayMode {
     # Add file information
     if ($DisplayFileInfo) {
 
-        $maxLength = 25
+        [int]$maxLength = 25
         if ($fileName.Length -gt $maxLength) {
             $fileName = $fileName.Substring(0, $maxLength - 3) + "..."
         }
