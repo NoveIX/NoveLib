@@ -96,7 +96,7 @@ function Copy-FileProgress {
     #region Process parameter
     # Get all source files recursively
     [array]$files = Get-All -File -Path $Source
-    [array]$hideDirs = Get-All -Dir -Hide -Path $Source
+    [array]$attributeDirs = Get-All -Dir -Hide -ReadOnly -Path $Source
     if (-not $files -or ($files.Count -eq 0)) {
         Write-Warning "$fxName no files found in the source directory '$Source'."
         return
@@ -107,7 +107,7 @@ function Copy-FileProgress {
 
     # Initialize progress tracking
     [int]$currentFile = 0
-    [int]$totalFiles = $files.Count + $hideDirs.Count
+    [int]$totalFiles = $files.Count + $attributeDirs.Count
 
     [double]$currentBytes = 0
     [ref]$globalCurrentBytes = [ref]$currentBytes
@@ -155,18 +155,19 @@ function Copy-FileProgress {
     }
 
     # Restore Visibility
-    foreach ($hideDir in $hideDirs) {
+    foreach ($attributeDir in $attributeDirs) {
         try {
-            Set-ItemVisibility -Hide -Path $hideDir.FullName
+            $result = Set-ItemAttributes -SetHide -SetReadOnly -Path $attributeDir.FullName
+            Write-Host "$($attributeDir.FullName) - $result"
         }
         finally {
             $currentFile++
-            $currentBytes += $hideDir.Length
+            $currentBytes += $attributeDir.Length
         }
 
         # Display progress bar
         Copy-FileDisplayMode -currentFile $currentFile -totalFiles $totalFiles -currentBytes $currentBytes `
-            -totalBytes $totalBytes -File $hideDir -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
+            -totalBytes $totalBytes -File $attributeDir -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
             -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
     }
 
