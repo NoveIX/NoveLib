@@ -3,47 +3,56 @@
 function Get-All {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Files', 'Dir', 'Hide', 'ReadOnly', 'Bytes')]
-        [string]$Mode,
+        [Parameter(Mandatory = $true, ParameterSetName = "Files")]
+        [switch]$Files,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Files', 'Dir', 'Hide', 'ReadOnly')]
+        [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
+        [switch]$Dir,
+
+        [Parameter(Mandatory = $true, ParameterSetName = "Hide")]
+        [switch]$Hide,
+
+        [Parameter(Mandatory = $true, ParameterSetName = "ReadOnly")]
+        [switch]$ReadOnly,
+
+        [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
+        [switch]$Bytes,
+
+        [Parameter(Mandatory = $true, ParameterSetName = "Files")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Hide")]
+        [Parameter(Mandatory = $true, ParameterSetName = "ReadOnly")]
         [string]$Path,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Bytes')]
+        [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
         [object[]]$Array
     )
 
-    switch ($Mode) {
-        'Files' {
-            if ($Path) {
-                return Get-ChildItem -LiteralPath $Path -Recurse -File -Force
-            }
-            throw "Path is required when Mode is 'Files'."
+    if ($Files) {
+        return Get-ChildItem -LiteralPath $Path -Recurse -File -Force
+    }
+    elseif ($Dir) {
+        return Get-ChildItem -LiteralPath $Path -Recurse -Directory -Force
+    }
+    elseif ($Hide) {
+        try {
+            return Get-ChildItem -LiteralPath $Path -Recurse -Hidden -Force
         }
-        'Dir' {
-            if ($Path) {
-                return Get-ChildItem -LiteralPath $Path -Recurse -Directory -Force
-            }
-            throw "Path is required when Mode is 'Files'."
+        catch {
+            return Get-ChildItem -LiteralPath $Path -Recurse -Force |
+            Where-Object { $_.Attributes -band [System.IO.FileAttributes]::Hidden }
         }
-        'Hide' {
-            if ($Path) {
-                return Get-ChildItem -LiteralPath $Path -Recurse -Hidden -Force
-            }
-            throw "Path is required when Mode is 'Files'."
+    }
+    elseif ($ReadOnly) {
+        try {
+            return Get-ChildItem -LiteralPath $Path -Recurse -ReadOnly -Force
         }
-        'ReadOnly' {
-            if ($Path) {
-                return Get-ChildItem -LiteralPath $Path -Recurse -ReadOnly -Force
-            }
-            throw "Path is required when Mode is 'Files'."
+        catch {
+            return Get-ChildItem -LiteralPath $Path -Recurse -Force |
+            Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReadOnly }
         }
-        'Bytes' {
-            if ($Array) {
-                return ($Array | Measure-Object -Property Length -Sum).Sum
-            }
-            throw "Array is required when Mode is 'Bytes'."
-        }
+    }
+    elseif ($Bytes) {
+        return ($Array | Measure-Object -Property Length -Sum).Sum
     }
 }
