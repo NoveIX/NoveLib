@@ -3,36 +3,28 @@
 function Set-ItemVisibility {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Path,
+        [Parameter(Mandatory = $true, ParameterSetName = "Hide")]
+        [switch]$Hide,
+
+        [Parameter(Mandatory = $true, ParameterSetName = "Show")]
+        [switch]$Show,
+
+        [Parameter(Mandatory = $true, ParameterSetName = "Toggle")]
+        [switch]$Toggle,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet("Hide", "Show", "Toggle")]
-        [string]$Mode
+        [string]$Path
     )
 
-    try {
-        $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
-    }
-    catch {
-        throw "Impossibile trovare l'elemento '$Path'. $_"
-    }
+    [System.IO.FileSystemInfo]$item = Get-Item -LiteralPath $Path -Force
 
-    $isHidden = ($item.Attributes -band [System.IO.FileAttributes]::Hidden) -ne 0
-
-    switch ($Mode) {
-        "Hide" {
-            if (-not $isHidden) {
-                $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden
-            }
-        }
-        "Show" {
-            if ($isHidden) {
-                $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden)
-            }
-        }
-        "Toggle" {
-            $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden
-        }
+    if ($Hide) {
+        $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden
+    }
+    elseif ($Show) {
+        $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden)
+    }
+    elseif ($Toggle) {
+        $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden
     }
 }
