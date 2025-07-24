@@ -15,6 +15,9 @@ function Get-All {
         [Parameter(Mandatory = $true, ParameterSetName = "ReadOnly")]
         [switch]$ReadOnly,
 
+        [Parameter(Mandatory = $true, ParameterSetName = "All")]
+        [switch]$All,
+
         [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
         [switch]$Bytes,
 
@@ -51,6 +54,9 @@ function Get-All {
             return Get-ChildItem -LiteralPath $Path -Recurse -Force |
             Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReadOnly }
         }
+    }
+    elseif ($All) {
+        Get-ChildItem -LiteralPath $Path -Recurse -Force
     }
     elseif ($Bytes) {
         return ($Array | Measure-Object -Property Length -Sum).Sum
