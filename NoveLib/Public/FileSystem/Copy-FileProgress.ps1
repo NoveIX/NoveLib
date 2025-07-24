@@ -95,7 +95,7 @@ function Copy-FileProgress {
 
     #region Process parameter
     # Get all source files recursively
-    [array]$files = Get-All -Mode Files -Path $Source
+    [array]$files = Get-All -Files -Path $Source
     if (-not $files -or ($files.Count -eq 0)) {
         Write-Warning "$fxName no files found in the source directory '$Source'."
         return
