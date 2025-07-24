@@ -25,6 +25,7 @@ function Get-All {
         [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
         [Parameter(Mandatory = $true, ParameterSetName = "Hide")]
         [Parameter(Mandatory = $true, ParameterSetName = "ReadOnly")]
+        [Parameter(Mandatory = $true, ParameterSetName = "All")]
         [string]$Path,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
