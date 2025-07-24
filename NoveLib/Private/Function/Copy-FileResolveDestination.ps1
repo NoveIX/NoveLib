@@ -24,7 +24,7 @@ function Copy-FileResolveDestination {
 
     # Restore Hidden Attribute
     if ($isHidden) {
-        Set-ItemVisibility -Path $destDir -Mode Hide | Out-Null
+        Set-ItemVisibility -Hide -Path $destDir | Out-Null
     }
 
     return $destPath
