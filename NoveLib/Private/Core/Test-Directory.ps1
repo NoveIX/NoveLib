@@ -16,21 +16,32 @@ function Test-Directory {
         [string]$Path
     )
 
-    if ($Exists) {
-        return Test-Path -LiteralPath $Path -PathType Container
+    $params = @{
+        LiteralPath = $Path
+        PathType    = 'Container'
     }
-    elseif ($Ensure) {
-        if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
-            New-Directory -Path $Path -Silence -Force
-            return $true
+
+    switch ($PSCmdlet.ParameterSetName) {
+
+        'Exists' {
+            return Test-Path -LiteralPath $Path -PathType Container
         }
-        return $false
-    }
-    elseif ($IsEmptyOrMissing) {
-        if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
-            return $true
+
+        'Ensure' {
+            if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+                New-Directory -Path $Path -Silence -Force
+                return $true
+            }
+            return $false
         }
-        $items = Get-ChildItem -LiteralPath $Path -Force
-        return ($items.Count -eq 0)
+
+        'IsEmptyOrMissing' {
+            if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+                return $true
+            }
+
+            $items = Get-ChildItem -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+            return ($items.Count -eq 0)
+        }
     }
 }
