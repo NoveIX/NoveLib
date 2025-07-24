@@ -3,24 +3,24 @@
 function Get-All {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true, ParameterSetName = "Files")]
+        [Parameter(Mandatory = $true, ParameterSetName = "File")]
         [switch]$File,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
         [switch]$Dir,
 
-        [Parameter(ParameterSetName = "Files")]
+        [Parameter(ParameterSetName = "File")]
         [Parameter(ParameterSetName = "Dir")]
         [switch]$Hide,
 
-        [Parameter(ParameterSetName = "Files")]
+        [Parameter(ParameterSetName = "File")]
         [Parameter(ParameterSetName = "Dir")]
         [switch]$ReadOnly,
 
         [Parameter(Mandatory = $true, ParameterSetName = "Bytes")]
         [switch]$Bytes,
 
-        [Parameter(Mandatory = $true, ParameterSetName = "Files")]
+        [Parameter(Mandatory = $true, ParameterSetName = "File")]
         [Parameter(Mandatory = $true, ParameterSetName = "Dir")]
         [Parameter(Mandatory = $true, ParameterSetName = "IOFile")]
         [string]$Path,
