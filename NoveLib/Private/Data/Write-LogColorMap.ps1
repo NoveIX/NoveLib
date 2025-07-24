@@ -3,6 +3,7 @@
 function Write-LogColorMap {
     param (
         # Log level - restricted to specific set of valid values
+        [Parameter(Mandatory = $true)]
         [ValidateSet("TRACE", "DEBUG", "INFO", "WARN", "FAIL", "DONE")]
         [string]$Level
     )

@@ -3,6 +3,7 @@
 function Write-LogConsoleOutputMap {
     param (
         # Mode for console output, restricted to valid options
+        [Parameter(Mandatory = $true)]
         [ValidateSet("None", "MessageOnly", "MessageAndTimestamp")]
         [string]$ConsoleOutputMode
     )
