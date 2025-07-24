@@ -74,7 +74,7 @@ function Copy-FileProgress {
     # =================================================================================================== #
 
     #region Validate IO parameter
-<#     if ((Test-Directory -Mode IsEmptyOrMissing -Path $Source) -or (Test-Directory -Mode IsEmptyOrMissing -Path  $Destination)) {
+    <#     if ((Test-Directory -Mode IsEmptyOrMissing -Path $Source) -or (Test-Directory -Mode IsEmptyOrMissing -Path  $Destination)) {
         throw [System.ArgumentException]::new(
             "Source or Destination path cannot be null or empty."
         )
@@ -110,7 +110,7 @@ function Copy-FileProgress {
 
     [double]$currentBytes = 0
     [ref]$globalCurrentBytes = [ref]$currentBytes
-    [double]$totalBytes = Get-All -Mode Bytes -Array $files
+    [double]$totalBytes = Get-All -Bytes -Array $files
 
     if ($Stream) {
         # Parameters used to determine when to use Copy-Buffer
