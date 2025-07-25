@@ -3,6 +3,7 @@
 function New-GuidString {
     [CmdletBinding()]
     param (
+        [Parameter(Position = 0)]
         [ValidateSet("D", "d", "N", "n", "P", "p", "B", "b", "X", "x")]
         [char]$Mode
     )
