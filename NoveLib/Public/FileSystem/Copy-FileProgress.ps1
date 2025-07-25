@@ -18,6 +18,8 @@ function Copy-FileProgress {
         # Overwrite files at the destination if they already exist
         [switch]$Force,
 
+        [switch]$CopyEmptyFolder,
+
         # Specifies the type of progress information to display:
         [ValidateNotNullOrEmpty()]
         [ValidateSet("FileOnly", "ByteOnly", "FileAndByte")]
@@ -96,7 +98,7 @@ function Copy-FileProgress {
     #region Process parameter
     # Get all source files recursively
     [array]$files = Get-All -File -Path $Source
-    [array]$attributeDirs = Get-All -Dir -Hide -ReadOnly -Path $Source
+    [array]$dirs = Get-All -Dir -Path $Source
     if (-not $files -or ($files.Count -eq 0)) {
         Write-Warning "$fxName no files found in the source directory '$Source'."
         return
@@ -107,7 +109,7 @@ function Copy-FileProgress {
 
     # Initialize progress tracking
     [int]$currentFile = 0
-    [int]$totalFiles = $files.Count + $attributeDirs.Count
+    [int]$totalFiles = $files.Count + $dirs.Count
 
     [double]$currentBytes = 0
     [ref]$globalCurrentBytes = [ref]$currentBytes
@@ -118,15 +120,14 @@ function Copy-FileProgress {
         [long]$MaxFileSize = $MaxFileSizeMB * 1MB
         [long]$BufferSize = $BufferSizeMB * 1MB
     }
-
-    [string]$activity = "Copy in progress..."
     #endregion
 
     # =================================================================================================== #
 
+    [string]$activity = "Copy in progress..."
     foreach ($file in $files) {
         # Resolve Destination Path And Create
-        [string]$fileDest = Copy-FileResolveDestination -File $file -Source $Source -Destination $Destination
+        [string]$fileDest = Copy-FileResolveDestination -File $file -Source $Source -Destination $Destination -Ensure
 
         # Copy File
         if (($file.Length -ge $MaxFileSize) -and $Stream) {
@@ -154,20 +155,49 @@ function Copy-FileProgress {
             -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
     }
 
-    # Restore Visibility
-    foreach ($attributeDir in $attributeDirs) {
+    # =================================================================================================== #
+
+    if ($CopyEmptyFolder) {
+        $activity = "Copy empty folder and restore attribute folder..."
+    }
+    else {
+        $activity = "Restore attribute folder..."
+    }
+
+    # Recupera tutte le cartelle nella destinazione (già esistenti o appena copiate)
+    [array]$destDirs = Get-All -Dir -Path $Destination
+
+    foreach ($dir in $dirs) {
         try {
-            $result = Set-ItemAttributes -SetHide -SetReadOnly -Path $attributeDir.FullName
-            Write-Host "$($attributeDir.FullName) - $result"
+
+            $params = @{
+                File        = $dir
+                Source      = $Source
+                Destination = $Destination
+            }
+            if ($CopyEmptyFolder) { $params['Ensure'] = $true }
+
+            # Restore empty folder and calculate destination target
+            [string]$destDir = Copy-FileResolveDestination @params
+
+            # Search the list of destination folders
+            [string]$existsDir = $destDirs | Where-Object { $_.FullName -eq $destDir }
+
+            # Restore attribute
+            if ($null -ne $existsDir) {
+                Copy-ItemAttribute -Source $dir.FullName -Destination $destDir
+            }
+            else {
+                Write-Warning "Cartella corrispondente non trovata per '$($dir.FullName)'"
+            }
         }
         finally {
             $currentFile++
-            $currentBytes += $attributeDir.Length
         }
 
         # Display progress bar
         Copy-FileDisplayMode -currentFile $currentFile -totalFiles $totalFiles -currentBytes $currentBytes `
-            -totalBytes $totalBytes -File $attributeDir -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
+            -totalBytes $totalBytes -File $dir -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
             -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
     }
 
