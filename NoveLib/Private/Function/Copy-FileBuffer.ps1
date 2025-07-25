@@ -3,10 +3,9 @@
 function Copy-FileBuffer {
     [CmdletBinding()]
     param(
-        # Copy path
+        # Transfer Point
         [Parameter(Mandatory = $true)]
         [string]$SourceFile,
-
         [Parameter(Mandatory = $true)]
         [string]$DestinationFile,
 
@@ -14,38 +13,9 @@ function Copy-FileBuffer {
         [Parameter(Mandatory = $true)]
         [int]$BufferSize,
 
-        # Progress bar
-        [Parameter(Mandatory = $true)]
-        [int]$CurrentFile,
-
-        [Parameter(Mandatory = $true)]
-        [int]$TotalFiles,
-
-        [Parameter(Mandatory = $true)]
-        [double]$CurrentBytes,
-
-        [Parameter(Mandatory = $true)]
-        [double]$TotalBytes,
-
         # Progress bar information
         [Parameter(Mandatory = $true)]
-        [System.IO.FileSystemInfo]$File,
-
-        [Parameter(Mandatory = $true)]
-        [string]$DisplayMode,
-
-        [Parameter(Mandatory = $true)]
-        [switch]$DisplayFileInfo,
-
-        [Parameter(Mandatory = $true)]
-        [int]$DecimalPlaces,
-
-        [Parameter(Mandatory = $true)]
-        [string]$Activity,
-
-        # Nested progress bar
-        [int]$Id = 0,
-        [System.Nullable[int]]$ParentId = $null
+        [System.IO.FileSystemInfo]$File
     )
 
     # Create object buffer
@@ -61,13 +31,10 @@ function Copy-FileBuffer {
             $destStream.Write($buffer, 0, $bytesRead)
 
             # Update the global counter for the total bytes copied so far
-            $globalCurrentBytes.Value += $bytesRead
+            $Script:CurrentBytes_NoveLibFX += $bytesRead
 
             # Display progress bar
-            Copy-FileDisplayMode -CurrentFile $GlobalCurrentFile.Value -TotalFiles $TotalFiles `
-                -CurrentBytes $GlobalCurrentBytes.Value -TotalBytes $TotalBytes -File $file `
-                -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
-                -Activity $Activity -Id $Id -ParentId $ParentId
+            Copy-FileDisplayMode -File $File
         }
     }
     finally {

@@ -107,14 +107,26 @@ function Copy-FileProgress {
     # Ensure destination root directory exists
     Test-Directory -Ensure -Path $Destination | Out-Null
 
-    # Initialize progress tracking
-    [int]$currentFile = 0
-    [ref]$globalCurrentFile = [ref]$currentFile
-    [int]$totalFiles = $files.Count + $dirs.Count
+    #
+    [string]$Script:Source_NoveLibFX = $Source
+    [string]$Script:Destination_NoveLibFX = $Destination
 
-    [double]$currentBytes = 0
-    [ref]$globalCurrentBytes = [ref]$currentBytes
-    [double]$totalBytes = Get-All -Bytes -Array $files
+    # Initialize progress tracking
+    [int]$Script:CurrentFile_NoveLibFX = 0
+    [int]$Script:TotalFiles_NoveLibFX = $files.Count + $dirs.Count
+
+    [double]$Script:CurrentBytes_NoveLibFX = 0
+    [double]$Script:TotalBytes_NoveLibFX = Get-All -Bytes -Array $files
+
+    # Progress bar information
+    [string]$Script:Activity_NoveLibFX = "Copy in progress..."
+    [string]$Script:DisplayMode_NoveLibFX = $DisplayMode
+    [switch]$Script:DisplayFileInfo_NoveLibFX = $DisplayFileInfo
+    [int]$Script:DecimalPlaces_NoveLibFX = $DecimalPlaces
+
+    # Nested progress bar
+    [int]$Script:Id_NoveLibFX = $Id
+    [int]$Script:ParentId_NoveLibFX = $ParentId
 
     # Parameters used to determine when to use Copy-FileBuffer
     if ($Stream) {
@@ -126,11 +138,7 @@ function Copy-FileProgress {
     # =================================================================================================== #
 
     #region Copy file
-    Copy-FileItem -Files $files -Source $Source -Destination $Destination -Stream:$Stream `
-        -MaxFileSize $maxFileSize -BufferSize $bufferSize -CurrentFile $globalCurrentFile.Value `
-        -TotalFiles $totalFiles -CurrentBytes $globalCurrentBytes.Value -TotalBytes $totalBytes `
-        -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
-        -Id $Id -ParentId $ParentId
+    Copy-FileItem -Files $files -Stream:$Stream -MaxFileSize $maxFileSize -BufferSize $bufferSize
     #endregion
 
     # =================================================================================================== #

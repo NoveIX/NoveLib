@@ -3,20 +3,8 @@
 function Copy-FileDisplayMode {
     [CmdletBinding()]
     param (
-        # Progress bar
-        [int]$TotalFiles,
-        [double]$TotalBytes,
-
         # Progress bar information
-        [System.IO.FileSystemInfo]$File,
-        [string]$DisplayMode,
-        [switch]$DisplayFileInfo,
-        [int]$DecimalPlaces,
-        [string]$Activity,
-
-        # Nested progress bar
-        [int]$Id = 0,
-        [System.Nullable[int]]$ParentId = $null
+        [System.IO.FileSystemInfo]$File
     )
 
     # Definition
@@ -25,23 +13,24 @@ function Copy-FileDisplayMode {
     [int]$fileLength = $File.Length
 
     # Calculate percent
-    [double]$averagePercent = (((($globalCurrentFile.Value / $TotalFiles) + ($globalCurrentBytes.Value / $TotalBytes)) / 2) * 100)
+    [double]$averagePercent = (((($Script:CurrentFile_NoveLibFX / $Script:TotalFiles_NoveLibFX) + `
+                ($Script:CurrentBytes_NoveLibFX / $Script:TotalBytes_NoveLibFX)) / 2) * 100)
 
     # Compute and format progress
-    [double]$percentComplete = [math]::Round($averagePercent, $DecimalPlaces)
-    [string]$percentString = "{0:N$DecimalPlaces}" -f $percentComplete
+    [double]$percentComplete = [math]::Round($averagePercent, $DecimalPlaces_NoveLibFX)
+    [string]$percentString = "{0:N$Script:DecimalPlaces_NoveLibFX}" -f $percentComplete
 
     # Convert Bytes in human redable size
-    [string]$currentReadable = Convert-ByteToSizeString -Byte $globalCurrentBytes.Value -DecimalPlaces $DecimalPlaces
-    [string]$totalReadable = Convert-ByteToSizeString -Byte $TotalBytes -DecimalPlaces $DecimalPlaces
+    [string]$currentReadable = Convert-ByteToSizeString -Byte $Script:CurrentBytes_NoveLibFX -DecimalPlaces $Script:DecimalPlaces_NoveLibFX
+    [string]$totalReadable = Convert-ByteToSizeString -Byte $Script:TotalBytes_NoveLibFX -DecimalPlaces $Script:DecimalPlaces_NoveLibFX
 
     # Select Display mode
-    if ($DisplayMode -eq 'FileOnly') { $status = "File $($globalCurrentFile.Value) of $TotalFiles ($percentString `%)" }
-    elseif ($DisplayMode -eq 'ByteOnly') { $status = "Copied $currentReadable of $totalReadable ($percentString `%)" }
-    elseif ($DisplayMode -eq 'FileAndByte') { $status = "File $($globalCurrentFile.Value) of $TotalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
+    if ($Script:DisplayMode_NoveLibFX -eq 'FileOnly') { $status = "File $Script:CurrentFile_NoveLibFX of $TotalFiles ($percentString `%)" }
+    elseif ($Script:DisplayMode_NoveLibFX -eq 'ByteOnly') { $status = "Copied $currentReadable of $totalReadable ($percentString `%)" }
+    elseif ($Script:DisplayMode_NoveLibFX -eq 'FileAndByte') { $status = "File $Script:CurrentFile_NoveLibFX of $TotalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
 
     # Add file information
-    if ($DisplayFileInfo) {
+    if ($Script:DisplayFileInfo_NoveLibFX) {
 
         [int]$maxLength = 25
         if ($fileName.Length -gt $maxLength) {
@@ -51,5 +40,6 @@ function Copy-FileDisplayMode {
     }
 
     # Show Progress bar
-    Write-ProgressBar -Id $Id -ParentId $ParentId -Activity $Activity -Status $status -PercentComplete $percentComplete
+    Write-ProgressBar -Id $Script:Id_NoveLibFX -ParentId $Script:ParentId_NoveLibFX -Activity $Script:Activity_NoveLibFX `
+        -Status $status -PercentComplete $percentComplete
 }
