@@ -2,23 +2,24 @@
 
 function Copy-FileDisplayMode {
     param (
+        # Progress bar
         [Parameter(Mandatory = $true)]
-        [int]$currentFile,
+        [int]$CurrentFile,
 
         [Parameter(Mandatory = $true)]
-        [int]$totalFiles,
+        [int]$TotalFiles,
 
         [Parameter(Mandatory = $true)]
-        [double]$currentBytes,
+        [double]$CurrentBytes,
 
         [Parameter(Mandatory = $true)]
-        [double]$totalBytes,
+        [double]$TotalBytes,
 
+        # Progress bar information
         [Parameter(Mandatory = $true)]
         [System.IO.FileSystemInfo]$File,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet("FileOnly", "ByteOnly", "FileAndByte")]
         [string]$DisplayMode,
 
         [Parameter(Mandatory = $true)]
@@ -30,6 +31,7 @@ function Copy-FileDisplayMode {
         [Parameter(Mandatory = $true)]
         [string]$Activity,
 
+        # Nested progress bar
         [int]$Id = 0,
         [System.Nullable[int]]$ParentId = $null
     )
@@ -40,20 +42,20 @@ function Copy-FileDisplayMode {
     [int]$fileLength = $File.Length
 
     # Calculate percent
-    [double]$averagePercent = (((($currentFile / $totalFiles) + ($currentBytes / $totalBytes)) / 2) * 100)
+    [double]$averagePercent = (((($CurrentFile / $TotalFiles) + ($CurrentBytes / $TotalBytes)) / 2) * 100)
 
     # Compute and format progress
     [double]$percentComplete = [math]::Round($averagePercent, $DecimalPlaces)
     [string]$percentString = "{0:N$DecimalPlaces}" -f $percentComplete
 
     # Convert Bytes in human redable size
-    [string]$currentReadable = Convert-ByteToSizeString -Byte $currentBytes -DecimalPlaces $DecimalPlaces
-    [string]$totalReadable = Convert-ByteToSizeString -Byte $totalBytes -DecimalPlaces $DecimalPlaces
+    [string]$currentReadable = Convert-ByteToSizeString -Byte $CurrentBytes -DecimalPlaces $DecimalPlaces
+    [string]$totalReadable = Convert-ByteToSizeString -Byte $TotalBytes -DecimalPlaces $DecimalPlaces
 
     # Select Display mode
-    if ($DisplayMode -eq 'FileOnly') { $status = "File $currentFile of $totalFiles ($percentString `%)" }
+    if ($DisplayMode -eq 'FileOnly') { $status = "File $CurrentFile of $TotalFiles ($percentString `%)" }
     elseif ($DisplayMode -eq 'ByteOnly') { $status = "Copied $currentReadable of $totalReadable ($percentString `%)" }
-    elseif ($DisplayMode -eq 'FileAndByte') { $status = "File $currentFile of $totalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
+    elseif ($DisplayMode -eq 'FileAndByte') { $status = "File $CurrentFile of $TotalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
 
     # Add file information
     if ($DisplayFileInfo) {

@@ -41,7 +41,7 @@ function Copy-FileBuffer {
         [int]$DecimalPlaces,
 
         [Parameter(Mandatory = $true)]
-        [string]$activity,
+        [string]$Activity,
 
         # Nested progress bar
         [int]$Id = 0,
@@ -67,7 +67,7 @@ function Copy-FileBuffer {
             Copy-FileDisplayMode -CurrentFile $GlobalCurrentFile.Value -TotalFiles $TotalFiles `
                 -CurrentBytes $GlobalCurrentBytes.Value -TotalBytes $TotalBytes -File $file `
                 -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
-                -Activity $activity -Id $Id -ParentId $ParentId
+                -Activity $Activity -Id $Id -ParentId $ParentId
         }
     }
     finally {

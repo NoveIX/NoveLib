@@ -109,54 +109,33 @@ function Copy-FileProgress {
 
     # Initialize progress tracking
     [int]$currentFile = 0
+    [ref]$globalCurrentFile = [ref]$currentFile
     [int]$totalFiles = $files.Count + $dirs.Count
 
     [double]$currentBytes = 0
     [ref]$globalCurrentBytes = [ref]$currentBytes
     [double]$totalBytes = Get-All -Bytes -Array $files
 
+    # Parameters used to determine when to use Copy-FileBuffer
     if ($Stream) {
-        # Parameters used to determine when to use Copy-Buffer
-        [long]$MaxFileSize = $MaxFileSizeMB * 1MB
-        [long]$BufferSize = $BufferSizeMB * 1MB
+        [long]$maxFileSize = $MaxFileSizeMB * 1MB
+        [long]$bufferSize = $BufferSizeMB * 1MB
     }
     #endregion
 
     # =================================================================================================== #
 
-    [string]$activity = "Copy in progress..."
-    foreach ($file in $files) {
-        # Resolve Destination Path And Create
-        [string]$fileDest = Copy-FileResolveDestination -File $file -Source $Source -Destination $Destination -Ensure
-
-        # Copy File
-        if (($file.Length -ge $MaxFileSize) -and $Stream) {
-            try {
-                Copy-FileBuffer -SourceFile $file.FullName -DestinationFile $fileDest -CurrentFile $currentFile `
-                    -TotalFiles $totalFiles -GlobalCurrentBytes $globalCurrentBytes -TotalBytes $totalBytes `
-                    -BufferSize $BufferSize -File $file -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
-                    -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
-            }
-            finally { $currentFile++ }
-        }
-        else {
-            try {
-                Copy-Item -Path $file.FullName -Destination $fileDest -Force -ErrorAction Stop
-            }
-            finally {
-                $currentFile++
-                $currentBytes += $file.Length
-            }
-        }
-
-        # Display progress bar
-        Copy-FileDisplayMode -currentFile $currentFile -totalFiles $totalFiles -currentBytes $currentBytes `
-            -totalBytes $totalBytes -File $file -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
-            -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
-    }
+    #region Copy file
+    Copy-FileItem -Files $files -Source $Source -Destination $Destination -Stream:$Stream `
+        -MaxFileSize $maxFileSize -BufferSize $bufferSize -CurrentFile $globalCurrentFile.Value `
+        -TotalFiles $totalFiles -CurrentBytes $globalCurrentBytes.Value -TotalBytes $totalBytes `
+        -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
+        -Id $Id -ParentId $ParentId
+    #endregion
 
     # =================================================================================================== #
 
+    #region Copy Dir
     if ($CopyEmptyFolder) {
         $activity = "Copy empty folder and restore attribute folder..."
     }
@@ -169,16 +148,9 @@ function Copy-FileProgress {
 
     foreach ($dir in $dirs) {
         try {
-
-            $params = @{
-                File        = $dir
-                Source      = $Source
-                Destination = $Destination
-            }
-            if ($CopyEmptyFolder) { $params['Ensure'] = $true }
-
             # Restore empty folder and calculate destination target
-            [string]$destDir = Copy-FileResolveDestination @params
+            [string]$destDir = Copy-FileResolveDestination -File $dir -Source $Source `
+                -Destination $Destination -Ensure:$CopyEmptyFolder
 
             # Search the list of destination folders
             [string]$existsDir = $destDirs | Where-Object { $_.FullName -eq $destDir }
@@ -192,14 +164,16 @@ function Copy-FileProgress {
             }
         }
         finally {
-            $currentFile++
+            $GlobalCurrentFile.Value++
         }
 
         # Display progress bar
-        Copy-FileDisplayMode -currentFile $currentFile -totalFiles $totalFiles -currentBytes $currentBytes `
-            -totalBytes $totalBytes -File $dir -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
-            -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
+        Copy-FileDisplayMode -CurrentFile $GlobalCurrentFile.Value -TotalFiles $TotalFiles `
+            -CurrentBytes $GlobalCurrentBytes.Value -TotalBytes $TotalBytes -File $dir `
+            -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
+            -Activity $activity -Id $Id -ParentId $ParentId
     }
+    #endregion
 
     # =================================================================================================== #
 
