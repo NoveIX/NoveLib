@@ -30,13 +30,13 @@ function Set-ItemAttributes {
     [System.IO.FileSystemInfo]$item = Get-Item -LiteralPath $Path -Force
 
     # --- Hidden operations ---
-    if ($Hide) {
+    if ($SetHide) {
         $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden
     }
-    if ($Show) {
+    if ($UnsetHide) {
         $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden)
     }
-    if ($Toggle) {
+    if ($ToggleHide) {
         $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden
     }
 
