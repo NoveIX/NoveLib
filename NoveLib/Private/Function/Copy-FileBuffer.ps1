@@ -10,7 +10,11 @@ function Copy-FileBuffer {
         [Parameter(Mandatory = $true)]
         [string]$DestinationFile,
 
-        # Progress bar information
+        # Buffer
+        [Parameter(Mandatory = $true)]
+        [int]$BufferSize,
+
+        # Progress bar
         [Parameter(Mandatory = $true)]
         [int]$CurrentFile,
 
@@ -18,28 +22,22 @@ function Copy-FileBuffer {
         [int]$TotalFiles,
 
         [Parameter(Mandatory = $true)]
-        [ref]$GlobalCurrentBytes,
+        [double]$CurrentBytes,
 
         [Parameter(Mandatory = $true)]
-        [long]$TotalBytes,
+        [double]$TotalBytes,
 
-        # Buffer
-        [Parameter(Mandatory = $true)]
-        [long]$BufferSize,
-
-        # Progress bar
+        # Progress bar information
         [Parameter(Mandatory = $true)]
         [System.IO.FileSystemInfo]$File,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet("FileOnly", "ByteOnly", "FileAndByte")]
         [string]$DisplayMode,
 
         [Parameter(Mandatory = $true)]
         [switch]$DisplayFileInfo,
 
         [Parameter(Mandatory = $true)]
-        [ValidateRange(0, 10)]
         [int]$DecimalPlaces,
 
         [Parameter(Mandatory = $true)]
@@ -65,9 +63,11 @@ function Copy-FileBuffer {
             # Update the global counter for the total bytes copied so far
             $globalCurrentBytes.Value += $bytesRead
 
-            Copy-FileDisplayMode -currentFile $currentFile -totalFiles $totalFiles -currentBytes $globalCurrentBytes.Value `
-                -totalBytes $totalBytes -File $file -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
-                -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId
+            # Display progress bar
+            Copy-FileDisplayMode -CurrentFile $GlobalCurrentFile.Value -TotalFiles $TotalFiles `
+                -CurrentBytes $GlobalCurrentBytes.Value -TotalBytes $TotalBytes -File $file `
+                -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
+                -Activity $activity -Id $Id -ParentId $ParentId
         }
     }
     finally {
