@@ -2,7 +2,10 @@
 
 function New-GuidString {
     [CmdletBinding()]
-    param ()
+    param (
+        [ValidateSet("D", "d", "N", "n", "P", "p", "B", "b", "X", "x")]
+        [char]$Mode
+    )
 
-    return [guid]::NewGuid().ToString()
+    return [guid]::NewGuid().ToString($Mode)
 }
