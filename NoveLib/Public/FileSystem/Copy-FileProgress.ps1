@@ -132,7 +132,7 @@ function Copy-FileProgress {
         # Copy File
         if (($file.Length -ge $MaxFileSize) -and $Stream) {
             try {
-                Copy-FileUseBuffer -SourceFile $file.FullName -DestinationFile $fileDest -CurrentFile $currentFile `
+                Copy-FileBuffer -SourceFile $file.FullName -DestinationFile $fileDest -CurrentFile $currentFile `
                     -TotalFiles $totalFiles -GlobalCurrentBytes $globalCurrentBytes -TotalBytes $totalBytes `
                     -BufferSize $BufferSize -File $file -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo `
                     -DecimalPlaces $DecimalPlaces -Activity $activity -Id $Id -ParentId $ParentId

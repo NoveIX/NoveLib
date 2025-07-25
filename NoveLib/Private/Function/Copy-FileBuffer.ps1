@@ -1,6 +1,6 @@
-# File: NoveLib/Private/Function/Copy-FileUseBuffer.ps1
+# File: NoveLib/Private/Function/Copy-FileBuffer.ps1
 
-function Copy-FileUseBuffer {
+function Copy-FileBuffer {
     [CmdletBinding()]
     param(
         # Copy path
