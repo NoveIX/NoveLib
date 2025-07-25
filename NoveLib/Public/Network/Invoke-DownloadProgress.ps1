@@ -34,7 +34,6 @@ function Invoke-DownloadProgress {
 
     try {
         # Try BITS
-        throw
         Start-BitsTransfer -Source $URL -Destination $SavePath -ErrorAction Stop
         return
     }
