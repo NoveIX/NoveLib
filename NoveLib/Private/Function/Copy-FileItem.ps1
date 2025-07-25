@@ -36,7 +36,7 @@ function Copy-FileItem {
             }
             finally {
                 $Script:CurrentFile_fx_CopyFile++
-                $globalCurrentBytes.Value += $file.Length
+                $Script:CurrentBytes_NoveLibFX += $file.Length
             }
         }
 
