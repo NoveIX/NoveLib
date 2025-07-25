@@ -126,7 +126,7 @@ function Copy-FileProgress {
 
     # Nested progress bar
     [int]$Script:Id_NoveLibFX = $Id
-    [int]$Script:ParentId_NoveLibFX = $ParentId
+    [System.Nullable[int]]$Script:ParentId_NoveLibFX = $ParentId
 
     # Parameters used to determine when to use Copy-FileBuffer
     if ($Stream) {
@@ -144,49 +144,42 @@ function Copy-FileProgress {
     # =================================================================================================== #
 
     #region Copy Dir
-    if ($CopyEmptyFolder) {
-        $activity = "Copy empty folder and restore attribute folder..."
-    }
-    else {
-        $activity = "Restore attribute folder..."
-    }
-
-    # Recupera tutte le cartelle nella destinazione (già esistenti o appena copiate)
-    [array]$destDirs = Get-All -Dir -Path $Destination
-
-    foreach ($dir in $dirs) {
-        try {
-            # Restore empty folder and calculate destination target
-            [string]$destDir = Copy-FileResolveDestination -File $dir -Source $Source `
-                -Destination $Destination -Ensure:$CopyEmptyFolder
-
-            # Search the list of destination folders
-            [string]$existsDir = $destDirs | Where-Object { $_.FullName -eq $destDir }
-
-            # Restore attribute
-            if ($null -ne $existsDir) {
-                Copy-ItemAttribute -Source $dir.FullName -Destination $destDir
-            }
-            else {
-                Write-Warning "Cartella corrispondente non trovata per '$($dir.FullName)'"
-            }
-        }
-        finally {
-            $GlobalCurrentFile.Value++
-        }
-
-        # Display progress bar
-        Copy-FileDisplayMode -CurrentFile $GlobalCurrentFile.Value -TotalFiles $TotalFiles `
-            -CurrentBytes $GlobalCurrentBytes.Value -TotalBytes $TotalBytes -File $dir `
-            -DisplayMode $DisplayMode -DisplayFileInfo:$DisplayFileInfo -DecimalPlaces $DecimalPlaces `
-            -Activity $activity -Id $Id -ParentId $ParentId
-    }
-    #endregion
+    Copy-FileDir -Dirs $dirs -CopyEmptyFolder:$CopyEmptyFolder
 
     # =================================================================================================== #
 
     #region Function conlusion
+    $RemoveScritpFX = (
+        'Source_NoveLibFX',
+        'Destination_NoveLibFX',
+        'CurrentFile_NoveLibFX',
+        'TotalFiles_NoveLibFX',
+        'CurrentBytes_NoveLibFX',
+        'TotalBytes_NoveLibFX',
+        'Activity_NoveLibFX',
+        'DisplayMode_NoveLibFX',
+        'DisplayFileInfo_NoveLibFX',
+        'DecimalPlaces_NoveLibFX',
+        'Id_NoveLibFX',
+        'ParentId_NoveLibFX'
+    )
+
+    $currentfx = 0
+    $totalfx = $RemoveScritpFX.Count
+    $Activity = "Clear Variable"
+    foreach ($fx in $RemoveScritpFX) {
+        Remove-Variable -Name $fx -Scope Script -ErrorAction SilentlyContinue
+
+        $averagePercent = (($currentfx / $totalfx) / 2) * 100
+        $percentComplete = [math]::Round($averagePercent, $DecimalPlaces)
+
+        Write-ProgressBar -Id $Id -ParentId $ParentId -Activity $Activity -PercentComplete $percentComplete
+
+        $currentfx++
+    }
+
     # Final progress bar cleanup
+    $Activity = "Clear Variable"
     Start-Sleep -Milliseconds 250
     Write-ProgressBar -Id $Id -ParentId $ParentId -Activity $Activity -Completed
 

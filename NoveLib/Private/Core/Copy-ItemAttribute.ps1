@@ -25,10 +25,5 @@ function Copy-ItemAttribute {
         throw "Source e destination devono essere dello stesso tipo (entrambi file o entrambi cartelle)."
     }
 
-    if ($destinationItem.PSIsContainer) {
-        [System.IO.Directory]::SetAttributes($destinationItem.FullName, $sourceItem.Attributes)
-    }
-    else {
-        [System.IO.File]::SetAttributes($destinationItem.FullName, $sourceItem.Attributes)
-    }
+    $destinationItem.Attributes = $sourceItem.Attributes
 }

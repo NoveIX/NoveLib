@@ -27,7 +27,7 @@ function Copy-FileItem {
                 Copy-FileBuffer -SourceFile $file.FullName -DestinationFile $fileDest -BufferSize $BufferSize -File $file
             }
             finally {
-                $Script:CurrentFile_fx_CopyFile++
+                $Script:CurrentFile_NoveLibFX++
             }
         }
         else {
@@ -35,7 +35,7 @@ function Copy-FileItem {
                 Copy-Item -Path $file.FullName -Destination $fileDest -Force -ErrorAction Stop
             }
             finally {
-                $Script:CurrentFile_fx_CopyFile++
+                $Script:CurrentFile_NoveLibFX++
                 $Script:CurrentBytes_NoveLibFX += $file.Length
             }
         }

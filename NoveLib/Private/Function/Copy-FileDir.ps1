@@ -32,11 +32,11 @@ function Copy-FileDir {
                 Copy-ItemAttribute -Source $dir.FullName -Destination $destDir
             }
             else {
-                Write-Warning "Cartella corrispondente non trovata per '$($dir.FullName)'"
+                #Write-Warning "Cartella corrispondente non trovata per '$($dir.FullName)'"
             }
         }
         finally {
-            $GlobalCurrentFile.Value++
+            $Script:CurrentFile_NoveLibFX++
         }
 
         # Display progress bar

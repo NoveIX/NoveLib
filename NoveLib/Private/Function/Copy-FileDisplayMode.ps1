@@ -25,9 +25,9 @@ function Copy-FileDisplayMode {
     [string]$totalReadable = Convert-ByteToSizeString -Byte $Script:TotalBytes_NoveLibFX -DecimalPlaces $Script:DecimalPlaces_NoveLibFX
 
     # Select Display mode
-    if ($Script:DisplayMode_NoveLibFX -eq 'FileOnly') { $status = "File $Script:CurrentFile_NoveLibFX of $TotalFiles ($percentString `%)" }
+    if ($Script:DisplayMode_NoveLibFX -eq 'FileOnly') { $status = "File $Script:CurrentFile_NoveLibFX of $Script:TotalFiles_NoveLibFX ($percentString `%)" }
     elseif ($Script:DisplayMode_NoveLibFX -eq 'ByteOnly') { $status = "Copied $currentReadable of $totalReadable ($percentString `%)" }
-    elseif ($Script:DisplayMode_NoveLibFX -eq 'FileAndByte') { $status = "File $Script:CurrentFile_NoveLibFX of $TotalFiles - Copied $currentReadable of $totalReadable ($percentString `%)" }
+    elseif ($Script:DisplayMode_NoveLibFX -eq 'FileAndByte') { $status = "File $Script:CurrentFile_NoveLibFX of $Script:TotalFiles_NoveLibFX - Copied $currentReadable of $totalReadable ($percentString `%)" }
 
     # Add file information
     if ($Script:DisplayFileInfo_NoveLibFX) {
