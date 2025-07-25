@@ -3,21 +3,28 @@
 function Invoke-DynamicVar {
     [CmdletBinding()]
     param (
-        [Parameter(Position = 0)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]$Name,
 
-        [Parameter(Position = 1)]
-        [object]$Value
+        [Parameter(Mandatory = $true, Position = 1)]
+        [object]$Value,
+
+        [Parameter(Mandatory = $true, Position = 2)]
+        [ValidateSet('Script', 'Global')]
+        [string]$Scope,
+
+        [switch]$Exit
     )
 
     if ($PSBoundParameters.ContainsKey('Value')) {
-        # Se passo il valore, creo o aggiorno la variabile dinamica
-        Set-Variable -Name $Name -Value $Value -Scope Script -Force
+        Set-Variable -Name $Name -Value $Value -Scope $Scope -Force
+        if ($Exit) {
+            return $null
+        }
     }
 
-    # Ritorno il valore della variabile (se esiste)
     if (Get-Variable -Name $Name -Scope Script -ErrorAction SilentlyContinue) {
-        return (Get-Variable -Name $Name -Scope Script).Value
+        return (Get-Variable -Name $Name -Scope $Scope).Value
     }
     else {
         return $null
