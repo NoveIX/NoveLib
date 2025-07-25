@@ -2,6 +2,7 @@
 
 function Copy-ItemAttribute {
     [CmdletBinding()]
+    [OutputType([void])]
     param (
         [Parameter(Mandatory = $true)]
         [string]$Source,
@@ -25,4 +26,11 @@ function Copy-ItemAttribute {
     }
 
     [System.IO.File]::SetAttributes($destinationItem.FullName, $sourceItem.Attributes)
+    if ($destinationItem.PSIsContainer) {
+        [System.IO.Directory]::SetAttributes($destinationItem.FullName, $sourceItem.Attributes)
+    }
+    else {
+        [System.IO.File]::SetAttributes($destinationItem.FullName, $sourceItem.Attributes)
+    }
+
 }
