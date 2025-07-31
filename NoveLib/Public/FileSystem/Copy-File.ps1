@@ -77,9 +77,9 @@ function Copy-File {
         [string]$percentString = "{0:N1}" -f $percentComplete
 
         [string]$status = "site $currentItem of $totalItem ($percentString `%) - File: $($item.Name)"
-        Write-Progress -Id 0 -Activity "Attività" -Status $status -PercentComplete $percentComplete
+        Write-Progress -Id 0 -Activity "Copy in progress..." -Status $status -PercentComplete $percentComplete
     }
-    Write-Progress -Id 0 -Activity "Attività" -Completed
+    Write-Progress -Id 0 -Activity "Copy completed" -Completed
 
     return 0
 }
