@@ -16,7 +16,7 @@ function Copy-FileResolveDestination {
         [switch]$Ensure
     )
 
-    # Resolve and create dir if necessary
+    # Calculate path relative path on destination path
     [string]$relativePath = $File.FullName.Substring((Resolve-Path $Source).Path.Length)
     [string]$destPath = Join-Path -Path $Destination -ChildPath $relativePath
 
