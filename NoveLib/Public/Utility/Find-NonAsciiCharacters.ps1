@@ -1,6 +1,10 @@
+# File: NoveLib\Public\Utility\Find-NonAsciiCharacters.ps1
+
 function Find-NonAsciiCharacters {
     param (
         [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-Path $_ })]
         [string]$Path
     )
 
