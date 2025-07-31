@@ -38,4 +38,11 @@ function Invoke-CipherEncrypt {
     catch {
         throw "Encryption error: $_"
     }
+
+    $CipherObject = [PSCustomObject]@{
+        KeyPath    = $KeyPath
+        PWFilePath = $PWFilePath
+    }
+
+    return $CipherObject
 }

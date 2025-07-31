@@ -1,19 +1,26 @@
 # File: NoveLib\Public\Utility\Invoke-CipherDecrypt.ps1
 function Invoke-CipherDecrypt {
     param (
+        [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({ Test-Path $_ })]
-        [Parameter(Mandatory = $true)]
         [string]$KeyPath,
+        [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({ Test-Path $_ })]
-        [Parameter(Mandatory = $true)]
-        [string]$PWFilePath
+        [string]$PWFilePath,
+        [Parameter(Mandatory = $true, ParameterSetName = 'CipherCredObject', ValueFromPipeline = $true)]
+        [PSCustomObject]$CipherObject
     )
 
     # Resolve path key
-    $KeyPath = Resolve-Path -Path $KeyPath
-    $PWFilePath = Resolve-Path -Path $PWFilePath
+    if ($CipherObject) {
+        $KeyPath = $CipherObject.KeyPath
+        $PWFilePath = $CipherObject.PWFilePath
+    }else {
+        $KeyPath = Resolve-Path -Path $KeyPath
+        $PWFilePath = Resolve-Path -Path $PWFilePath
+    }
 
     # Decript passoword
     try {
