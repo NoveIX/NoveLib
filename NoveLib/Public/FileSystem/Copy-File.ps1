@@ -43,6 +43,14 @@ function Copy-File {
     [int]$totalItem = $items.Count
 
     foreach ($item in $items) {
+        # Write progress bar
+        $currentItem++
+        [double]$averagePercent = (($currentItem / $totalItem) * 100)
+        [double]$percentComplete = [math]::Round($averagePercent, 3)
+        [string]$percentString = "{0:N1}" -f $percentComplete
+        [string]$status = "site $currentItem of $totalItem ($percentString `%) - File: $($item.Name)"
+        Write-Progress -Id 0 -Activity "Copy in progress..." -Status $status -PercentComplete $percentComplete
+
         # Calculate path relative path on destination path
         [string]$SourceRelativePath = $item.FullName.Substring((Resolve-Path $Source).Path.Length)
         [string]$DestinationFullPath = Join-Path -Path $Destination -ChildPath $SourceRelativePath
@@ -69,17 +77,8 @@ function Copy-File {
                 Write-Warning -Message "($currentItem / $totalItem) Failed to set attributes on: $DestinationFullPath - $_"
             }
         }
-
-        # Write progress bar
-        $currentItem++
-        [double]$averagePercent = (($currentItem / $totalItem) * 100)
-        [double]$percentComplete = [math]::Round($averagePercent, 3)
-        [string]$percentString = "{0:N1}" -f $percentComplete
-
-        [string]$status = "site $currentItem of $totalItem ($percentString `%) - File: $($item.Name)"
-        Write-Progress -Id 0 -Activity "Copy in progress..." -Status $status -PercentComplete $percentComplete
     }
-    Write-Progress -Id 0 -Activity "Copy completed" -Completed
+    Write-Progress -Id 0 -Activity "Copy completed..." -Completed
 
     return 0
 }
