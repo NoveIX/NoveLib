@@ -1,4 +1,4 @@
-function Invoke-EncodeUTF8 {
+function Find-NonAsciiCharacters {
     param (
         [Parameter(Mandatory = $true)]
         [string]$Path
