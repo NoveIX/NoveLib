@@ -62,7 +62,7 @@ function New-LogSetting {
     }
 
     # Handle Temp Path
-    if (-not $Temp) { 
+    if (-not $Temp) {
         $Temp = Join-Path -Path $Path -ChildPath "Temp"
     }
     elseif (-not ([System.IO.Path]::IsPathRooted($Temp))) {
@@ -72,19 +72,19 @@ function New-LogSetting {
 
     # Ensure log directory exists
     if (-not (Test-Path -Path $Path)) {
-        New-Directory -Path $Path
+        New-Item -Path $Path -ItemType Directory -Force | Out-Null
     }
 
     # Ensure temp directory exists (only if recent log file is used)
     if ($UseRecentLogFile -and -not (Test-Path $Temp)) {
-        New-Directory -Path $Temp
+        New-Item -Path $Temp -ItemType Directory -Force | Out-Null
     }
 
     # Optional: create a subdirectory based on current user
     if ($LogUserDir) {
         $logUserPath = Join-Path -Path $Path -ChildPath $userName
         if (-not (Test-Path -Path $logUserPath)) {
-            New-Directory -Path $logUserPath
+            New-Item -Path $logUserPath -ItemType Directory -Force | Out-Null
         }
     }
 
@@ -163,7 +163,7 @@ function New-LogSetting {
 
 
     # Create and return an instance of the NoveLib_LogSetting class with the provided configuration parameters
-    $logSettingObject = [NoveLibLogSetting]::new(
+    $logSettingObject = [LogSetting]::new(
         $filePath,
         $LogMinLevel,
         $EnableConsoleOutput,

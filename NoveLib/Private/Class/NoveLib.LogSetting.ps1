@@ -1,6 +1,6 @@
 # File: NoveLib\Private\Class\NoveLib.LogSetting.ps1
 
-class NoveLibLogSetting {
+class LogSetting {
     # Class properties (e.g., [string]$LogPath, [bool]$UseMilliseconds, etc.)
     [string]$LogPath
     [string]$LogMinLevel
@@ -9,7 +9,7 @@ class NoveLibLogSetting {
     [bool]$UseDotNET
 
     # Constructor to initialize the log setting object
-    NoveLibLogSetting(
+    LogSetting(
         [string]$LogPath,
         [string]$LogMinLevel,
         [string]$EnableConsoleOutput,

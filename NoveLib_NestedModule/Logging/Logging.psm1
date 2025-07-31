@@ -1,3 +1,29 @@
+#region Class LogSetting
+class LogSetting {
+    # Class properties (e.g., [string]$LogPath, [bool]$UseMilliseconds, etc.)
+    [string]$LogPath
+    [string]$LogMinLevel
+    [string]$EnableConsoleOutput
+    [bool]$UseMilliseconds
+    [bool]$UseDotNET
+
+    # Constructor to initialize the log setting object
+    LogSetting(
+        [string]$LogPath,
+        [string]$LogMinLevel,
+        [string]$EnableConsoleOutput,
+        [bool]$UseMilliseconds,
+        [bool]$UseDotNET
+    ) {
+        $this.LogPath = $LogPath
+        $this.LogMinLevel = $LogMinLevel
+        $this.EnableConsoleOutput = $EnableConsoleOutput
+        $this.UseMilliseconds = $UseMilliseconds
+        $this.UseDotNET = $UseDotNET
+    }
+}
+#endregion
+
 #region LogSetting
 function New-LogSetting {
     [CmdletBinding()]
@@ -21,8 +47,8 @@ function New-LogSetting {
         [switch]$UseMilliseconds,
 
         # Print in console
-        [switch]$ConsolePrint,
-        [switch]$ConsolePrintTime,
+        [ValidateSet("None", "MessageOnly", "MessageAndTimestamp")]
+        [string]$EnableConsoleOutput = "None",
 
         # use .NET to write in the file
         [bool]$UseDotNET = $true
@@ -41,10 +67,6 @@ function New-LogSetting {
         Write-Warning "$($FunctionName) line $($LineNumber): Parameter 'RecentLogFileDelayMinute' requires 'UseRecentLogFile'."
     }
 
-    if ($ConsolePrint -and $ConsolePrintTime) {
-        Write-Warning "$($FunctionName) line $($LineNumber): Parameter 'ConsolePrintTime' includes the effects of 'ConsolePrint' and also adds the timestamp to the output. Use one of them."
-    }
-
 
 
     # Retrieve the current user name
@@ -52,11 +74,11 @@ function New-LogSetting {
 
     # Handle Log Path
     if (-not $Path) {
-        $Path = if (-not $MyInvocation.ScriptName) {
-            Join-Path -Path $PWD -ChildPath "Log"
+        if (-not $MyInvocation.ScriptName) {
+            $Path = Join-Path -Path $PWD -ChildPath "Log"
         }
         else {
-            Join-Path -Path $PSScriptRoot -ChildPath "Log"
+            $Path = Join-Path -Path $PSScriptRoot -ChildPath "Log"
         }
     }
     elseif (-not ([System.IO.Path]::IsPathRooted($Path))) {
@@ -75,30 +97,30 @@ function New-LogSetting {
 
     # Ensure log directory exists
     if (-not (Test-Path -Path $Path)) {
-        New-Item -ItemType Directory -Path $Path -Force | Out-Null
+        New-Item -Path $Path -ItemType Directory -Force | Out-Null
     }
 
     # Ensure temp directory exists (only if recent log file is used)
     if ($UseRecentLogFile -and -not (Test-Path $Temp)) {
-        New-Item -ItemType Directory -Path $Temp -Force | Out-Null
+        New-Item -Path $Temp -ItemType Directory -Force | Out-Null
     }
 
     # Optional: create a subdirectory based on current user
     if ($LogUserDir) {
         $logUserPath = Join-Path -Path $Path -ChildPath $userName
         if (-not (Test-Path -Path $logUserPath)) {
-            New-Item -ItemType Directory -Path $logUserPath -Force | Out-Null
+            New-Item -Path $logUserPath -ItemType Directory -Force | Out-Null
         }
     }
 
     # Define default log name if missing
     if (-not $Filename) {
         $scriptName = $MyInvocation.MyCommand.Path
-        $Filename = if ($scriptName) {
-            [System.IO.Path]::GetFileNameWithoutExtension($scriptName)
+        if ($scriptName) {
+            $Filename = [System.IO.Path]::GetFileNameWithoutExtension($scriptName)
         }
         else {
-            "Log"
+            $Filename = "Log"
         }
     }
 
@@ -157,23 +179,22 @@ function New-LogSetting {
 
     # Construct the full path to the file
     if ($LogUserDir) {
-        $logPath = Join-Path -Path $logUserPath -ChildPath $file
+        $filePath = Join-Path -Path $logUserPath -ChildPath $file
     }
     else {
-        $logPath = Join-Path -Path $Path -ChildPath $file
+        $filePath = Join-Path -Path $Path -ChildPath $file
     }
 
 
 
-    # Create and return the configuration object
-    $logSettingObject = [PSCustomObject]@{
-        LogPath          = $logPath
-        LogMinLevel      = $LogMinLevel
-        ConsolePrint     = $ConsolePrint
-        ConsolePrintTime = $ConsolePrintTime
-        UseMilliseconds  = $UseMilliseconds
-        UseDotNET        = $UseDotNET
-    }
+    # Create and return an instance of the NoveLib_LogSetting class with the provided configuration parameters
+    $logSettingObject = [LogSetting]::new(
+        $filePath,
+        $LogMinLevel,
+        $EnableConsoleOutput,
+        $UseMilliseconds,
+        $UseDotNET
+    )
 
     return $logSettingObject
 }
