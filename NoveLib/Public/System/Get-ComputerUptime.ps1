@@ -1,6 +1,7 @@
 #File: NoveLib/Public/System/Get-ComputerUptime.ps1
 
 function Get-ComputerUptime {
+    [CmdletBinding()]
     param (
         [ValidateSet("LastBootUpTime", "TimeStamp", "UnixStyle")]
         $Mode = "LastBootUpTime"

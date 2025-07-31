@@ -1,6 +1,10 @@
 # File: NoveLib\Public\System\Get-ComputerUptimeUnix.ps1
 
 function Get-ComputerUptimeUnix {
+    [CmdletBinding()]
+    param ()
+
+    # Get date
     $now = Get-Date
     $boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
     $uptime = $now - $boot
