@@ -17,5 +17,4 @@ function Write-LogConsoleOutputMap {
 
     # Return the corresponding mapping if the mode is valid
     return $outputMap[$ConsoleOutputMode]
-
 }
