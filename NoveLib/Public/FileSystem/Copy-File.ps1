@@ -13,7 +13,10 @@ function Copy-File {
         [string]$Destination,
 
         # Overwrite files at the destination if they already exist
-        [switch]$Force
+        [switch]$Force,
+
+        [ValidateNotNullOrEmpty()]
+        [int]$decimalPlaces = 2
     )
 
     # Create the destination if it does not exist
@@ -36,19 +39,19 @@ function Copy-File {
     $Destination = Resolve-Path -LiteralPath $Destination
 
     # Recursive copy with attribute preservation
-    $items = Get-ChildItem -Path $Source -Recurse -Force
+    [array]$items = Get-ChildItem -Path $Source -Recurse -Force
 
     #Counter
     [int]$currentItem = 0
     [int]$totalItem = $items.Count
 
     foreach ($item in $items) {
-        # Write progress bar
+        # Progress bar
         $currentItem++
         [double]$averagePercent = (($currentItem / $totalItem) * 100)
-        [double]$percentComplete = [math]::Round($averagePercent, 3)
-        [string]$percentString = "{0:N1}" -f $percentComplete
-        [string]$status = "site $currentItem of $totalItem ($percentString `%) - File: $($item.Name)"
+        [double]$percentComplete = [math]::Round($averagePercent, $decimalPlaces)
+        [string]$percentString = $percentComplete.ToString("N$decimalPlaces")
+        [string]$status = "Item $currentItem of $totalItem ($percentString `%) - $($item.Name)"
         Write-Progress -Id 0 -Activity "Copy in progress..." -Status $status -PercentComplete $percentComplete
 
         # Calculate path relative path on destination path
@@ -78,7 +81,8 @@ function Copy-File {
             }
         }
     }
-    Write-Progress -Id 0 -Activity "Copy completed..." -Completed
 
+    Start-Sleep -Milliseconds 200
+    Write-Progress -Id 0 -Activity "Copy completed" -Completed
     return 0
 }
