@@ -8,19 +8,16 @@ function Write-LogInfo {
         [string]$Message,
 
         # Force console print
-        [ValidateSet("None", "MessageOnly", "MessageAndTimestamp")]
-        [string]$PrintMode = "None",
+        [switch]$Print,
+        [switch]$PrintTime,
 
-        # self-defined parameters
-        [pscustomobject]$LogSetting = $null
+        # Force use another log setting
+        [LogSetting]$LogSetting = $null
     )
 
     # self-defined parameters
-    $functionName = $MyInvocation.MyCommand.Name
-    $scriptLine = $MyInvocation.ScriptLineNumber
+    [string]$functionName = $MyInvocation.MyCommand.Name
+    [int]$scriptLine = $MyInvocation.ScriptLineNumber
 
-    # Use the script variable if not passed as a parameter
-    $LogSetting = Test-LogSetting -LogSetting $LogSetting -FunctionName $functionName -ScriptLine $scriptLine
-
-    Write-Log -Message $Message -Level INFO -LogSetting $LogSetting -ForceConsoleOutput $PrintMode
+    Write-Log -Message $Message -Level INFO -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
 }

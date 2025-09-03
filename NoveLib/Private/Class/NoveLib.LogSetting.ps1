@@ -2,25 +2,25 @@
 
 class LogSetting {
     # Class properties (e.g., [string]$LogPath, [bool]$UseMilliseconds, etc.)
-    [string]$LogPath
+    [string]$FilePath
     [string]$LogMinLevel
-    [string]$EnableConsoleOutput
-    [bool]$UseMilliseconds
-    [bool]$UseDotNET
+    [string]$ConsoleOutputMode
+    [bool]$useMilliseconds
+    [bool]$useDotNET
 
     # Constructor to initialize the log setting object
     LogSetting(
-        [string]$LogPath,
+        [string]$FilePath,
         [string]$LogMinLevel,
-        [string]$EnableConsoleOutput,
-        [bool]$UseMilliseconds,
-        [bool]$UseDotNET
+        [string]$ConsoleOutputMode,
+        [bool]$useMilliseconds,
+        [bool]$useDotNET
     ) {
-        $this.LogPath = $LogPath
+        $this.FilePath = $FilePath
         $this.LogMinLevel = $LogMinLevel
-        $this.EnableConsoleOutput = $EnableConsoleOutput
-        $this.UseMilliseconds = $UseMilliseconds
-        $this.UseDotNET = $UseDotNET
+        $this.ConsoleOutputMode = $ConsoleOutputMode
+        $this.useMilliseconds = $useMilliseconds
+        $this.useDotNET = $useDotNET
     }
 
     # Additional constructors or methods can be added here

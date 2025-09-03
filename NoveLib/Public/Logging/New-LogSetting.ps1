@@ -8,7 +8,7 @@ function New-LogSetting {
         [string]$Extension,
         [string]$Path,
         [string]$Temp,
-        [ValidateSet("TRACE", "DEBUG", "INFO", "WARN", "FAIL", "DONE")]
+        [ValidateSet("TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "DONE")]
         [string]$LogMinLevel = "INFO",
 
         # log User
@@ -22,7 +22,7 @@ function New-LogSetting {
         [switch]$UseMilliseconds,
 
         # Print in console
-        [ValidateSet("None", "MessageOnly", "MessageAndTimestamp")]
+        [ValidateSet("None", "Message", "Timestamp")]
         [string]$EnableConsoleOutput = "None",
 
         # use .NET to write in the file
@@ -47,28 +47,29 @@ function New-LogSetting {
     # Retrieve the current user name
     $userName = $env:USERNAME
 
-    # Handle Log Path
+    #### Handle Path
+
+    # Log Path
     if (-not $Path) {
-        if (-not $MyInvocation.ScriptName) {
-            $Path = Join-Path -Path $PWD -ChildPath "Log"
-        }
-        else {
-            $Path = Join-Path -Path $PSScriptRoot -ChildPath "Log"
-        }
+        # If the script was not started from a file, use the current folder.
+        $basePath = if ($MyInvocation.ScriptName) { $PSScriptRoot } else { $PWD }
+        $Path = Join-Path -Path $basePath -ChildPath "Log"
     }
     elseif (-not ([System.IO.Path]::IsPathRooted($Path))) {
-        $fullPath = Join-Path -Path $PWD -ChildPath $Path
-        $Path = (Resolve-Path -Path $fullPath).Path
+        # Converts to absolute path if relative
+        $Path = (Resolve-Path -Path (Join-Path -Path $PWD -ChildPath $Path)).Path
     }
 
-    # Handle Temp Path
+    # Temp Path
     if (-not $Temp) {
         $Temp = Join-Path -Path $Path -ChildPath "Temp"
     }
     elseif (-not ([System.IO.Path]::IsPathRooted($Temp))) {
-        $fullPath = Join-Path -Path $PWD -ChildPath $Temp
-        $Temp = (Resolve-Path -Path $fullPath).Path
+        # Converts to absolute path if relative
+        $Temp = (Resolve-Path -Path (Join-Path -Path $PWD -ChildPath $Temp)).Path
     }
+
+    #### Make Directory
 
     # Ensure log directory exists
     if (-not (Test-Path -Path $Path)) {
@@ -88,34 +89,32 @@ function New-LogSetting {
         }
     }
 
-    # Define default log name if missing
+    #### Handle Filename
+
+    # Defines a log file name if missing
     if (-not $Filename) {
-        $scriptName = $MyInvocation.MyCommand.Path
-        if ($scriptName) {
-            $Filename = [System.IO.Path]::GetFileNameWithoutExtension($scriptName)
+        $Filename = if ($MyInvocation.MyCommand.Path) {
+            [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Path)
         }
-        else {
-            $Filename = "Log"
-        }
+        else { "Log" }
     }
 
     # Define default log extension if missing
-    if (-not $Extension) {
+    if (-not $Extension -or [string]::IsNullOrWhiteSpace($Extension) -or $Extension -eq ".") {
         $Extension = "log"
     }
-    if ($Extension.StartsWith(".")) {
-        $Extension = $Extension.TrimStart(".")
+    else {
+        $Extension = $Extension.TrimStart(".").ToLower()
+        if (-not $Extension) { $Extension = "log" }
     }
 
-
+    #### Build log path
 
     # Start dialing the filename
     $file = $Filename
 
     # Add username if required
-    if ($LogUser) {
-        $file += "_$userName"
-    }
+    if ($LogUser) { $file += "_$userName" }
 
     # Date management in file name
     if ($DateInLogFile) {
@@ -137,9 +136,7 @@ function New-LogSetting {
                     $currentDate = $fileCurrentDate
                     $writeDate = $false
                 }
-                else {
-                    Remove-Item $dateTempFile -Force
-                }
+                else { Remove-Item -Path $dateTempFile -Force }
             }
             if ($writeDate) {
                 $currentDate | Out-File -FilePath $dateTempFile -Encoding UTF8

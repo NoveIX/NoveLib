@@ -1,6 +1,6 @@
-# File: NoveLib\Public\Logging\Write-LogTrace.ps1
+# File: NoveLib\Public\Logging\Write-LogFatal.ps1
 
-function Write-LogTrace {
+function Write-LogFatal {
     [CmdletBinding()]
     param(
         # Log parameter
@@ -19,5 +19,5 @@ function Write-LogTrace {
     [string]$functionName = $MyInvocation.MyCommand.Name
     [int]$scriptLine = $MyInvocation.ScriptLineNumber
 
-    Write-Log -Message $Message -Level TRACE -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
+    Write-Log -Message $Message -Level FATAL -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
 }

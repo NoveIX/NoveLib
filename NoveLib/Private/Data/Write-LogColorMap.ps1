@@ -4,7 +4,7 @@ function Write-LogColorMap {
     param (
         # Log level - restricted to specific set of valid values
         [Parameter(Mandatory = $true)]
-        [ValidateSet("TRACE", "DEBUG", "INFO", "WARN", "FAIL", "DONE")]
+        [ValidateSet("TRACE", "DEBUG", "INFO", "ERROR", "FAIL", "FATAL", "DONE")]
         [string]$Level
     )
 
@@ -14,7 +14,8 @@ function Write-LogColorMap {
         "DEBUG" = 'Gray'
         "INFO"  = 'DarkCyan'
         "WARN"  = 'Yellow'
-        "FAIL"  = 'Red'
+        "ERROR" = 'Red'
+        "FATAL" = 'DarkRed'
         "DONE"  = 'Green'
     }
 
