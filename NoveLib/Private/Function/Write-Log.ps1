@@ -28,19 +28,17 @@ function Write-Log {
         [LogSetting]$LogSetting = $Script:LogSetting
 
         if (-not $LogSetting) {
-            $msg = "$FunctionName line $ScriptLine error: LogSetting is not defined as a script variable. " +
+            $sysThrMsg = "$FunctionName line $ScriptLine error: LogSetting is not defined as a script variable. " +
             "Unable to use the Write-Log function"
-            throw [System.InvalidOperationException]::new($msg)
-            Write-Host "Press a key to continue"
-            Read-Host
+            throw [System.InvalidOperationException]::new($sysThrMsg)
         }
     }
 
     if ($Print -and $PrintTime) {
-        [string]$msg = "$FunctionName line ${LineNumber}: 'PrintTime' is equivalent to 'Print' but includes a timestamp. " +
+        $sysThrMsg = "$FunctionName line ${LineNumber}: 'PrintTime' is equivalent to 'Print' but includes a timestamp. " +
         "It is recommended to use only one to avoid redundancy."
 
-        Write-LogHost -Message $msg -Level DEBUG
+        Write-LogHost -Message $sysThrMsg -Level DEBUG
         $Print = $false
     }
 
@@ -75,7 +73,7 @@ function Write-Log {
     }
 
     # Return the corresponding mapping if the mode is valid
-    $clsConfig = $outMap[$ConsoleOutputMode]
+    [hashtable]$clsConfig = $outMap[$ConsoleOutputMode]
 
     # Prepare log message with timestamp (full date and time)
     if ($useMilliseconds) { $timeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff" }
@@ -92,7 +90,7 @@ function Write-Log {
         if ($clsConfig.time -or $PrintTime) { Write-Host "[$timeStamp] " -NoNewline }
 
         # Retrieves color for level, defaulting to no color
-        $color = Write-LogColorMap -Level $Level
+        [string]$color = Write-LogColorMap -Level $Level
 
         Write-Host "[" -NoNewline
         Write-Host "$Level" -ForegroundColor $color -NoNewline
@@ -105,7 +103,7 @@ function Write-Log {
     #### Write log file
 
     # Log file output format
-    $logFormat = "[$timeStamp] [$Level] - $Message"
+    [string]$logFormat = "[$timeStamp] [$Level] - $Message"
 
     # Writes and adds the message to the log file using .NET to enable file sharing
     $fs = $null
@@ -122,7 +120,7 @@ function Write-Log {
     }
     catch { Write-Error "Error while writing to log file: $_" }
     finally {
-    if ($sw) { $sw.Close() }
-    if ($fs) { $fs.Close() }
+        if ($sw) { $sw.Close() }
+        if ($fs) { $fs.Close() }
     }
 }

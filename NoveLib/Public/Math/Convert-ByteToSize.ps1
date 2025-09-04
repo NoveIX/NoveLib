@@ -8,21 +8,12 @@ function Convert-ByteToSize {
         [long]$Byte
     )
 
-    if ($Byte -ge 1TB) {
-        $result = ($Byte / 1TB)
-    }
-    elseif ($Byte -ge 1GB) {
-        $result = ($Byte / 1GB)
-    }
-    elseif ($Byte -ge 1MB) {
-        $result = ($Byte / 1MB)
-    }
-    elseif ($Byte -ge 1KB) {
-        $result = ($Byte / 1KB)
-    }
-    else {
-        $result = $Byte
-    }
+    # --- Converter ---
+    if ($Byte -ge 1TB) { $result = ($Byte / 1TB) }
+    elseif ($Byte -ge 1GB) { $result = ($Byte / 1GB) }
+    elseif ($Byte -ge 1MB) { $result = ($Byte / 1MB) }
+    elseif ($Byte -ge 1KB) { $result = ($Byte / 1KB) }
+    else { $result = $Byte }
 
     return $result
 }

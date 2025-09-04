@@ -1,6 +1,7 @@
 # File: NoveLib\Public\Utility\Invoke-DecryptSecureString.ps1
 
 function Invoke-DecryptSecureString {
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNullOrEmpty()]
@@ -8,9 +9,9 @@ function Invoke-DecryptSecureString {
     )
 
     # Decript secure string with .NET
-    $ClearPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+    $ClearString = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
         [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
     )
 
-    return $ClearPassword
+    return $ClearString
 }

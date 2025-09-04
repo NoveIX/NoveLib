@@ -1,48 +1,67 @@
 # File: NoveLib\Public\Utility\Invoke-CipherEncrypt.ps1
 
 function Invoke-CipherEncrypt {
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({ Test-Path $_ })]
         [string]$KeyPath,
-        [string]$PWFilePath
+        [string]$FileName,
+
+        [switch]$OutNull
     )
 
-    # Validate
-    if (-not (Test-Path -Path $KeyPath -PathType Leaf)) {
-        throw "Encryption key file not found: $KeyPath"
+    # =================================================================================================== #
+
+    #### Validate Pipeline
+
+    if ($MyInvocation.ExpectingInput -and $OutNull) {
+        Write-Warning "Warning: -OutNull cannot be used when receiving input from the pipeline. Ignoring -OutNull to allow pipeline processing."
+        $OutNull = $false
     }
 
-    if ([string]::IsNullOrWhiteSpace($PWFilePath)) {
-        $PWFileName = "Password"
+    # =================================================================================================== #
+
+    #### Validate Parameter
+
+    # Key path
+    try { Test-Path -Path $KeyPath -PathType Leaf -ErrorAction Stop | Out-Null }
+    catch {
+        $sysThrMsg = "Key file not found. $_"
+        throw [System.IO.FileNotFoundException]::new($sysThrMsg)
     }
 
-    # Resolve path Key and Passowrd File
-    $KeyPath = Resolve-Path -Path $KeyPath
-    $credDir = Split-Path -Path $KeyPath -Parent
-    $PWFilePath = Join-Path -Path $credDir -ChildPath $PWFileName
+    # =================================================================================================== #
 
-    # Validate key length
-    $KeyBytes = [System.IO.File]::ReadAllBytes($KeyPath)
-    if ($KeyBytes.Length -notin 32) {
-        throw "AES key must be 32 bytes in length. Found $($KeyBytes.Length)."
-    }
+    #### Handle file name
 
+    # Resolve path
+    if (-not $FileName) { $FileName = "EncryptedText" }
+    $basePath = Split-Path -Path $(Resolve-Path -Path $KeyPath) -Parent
+    $FilePath = Join-Path -Path $basePath -ChildPath $FileName
+
+    # =================================================================================================== #
+
+    #### Encrypt secure string
+
+    # Get key byte and encrypt
     try {
-        Read-Host "Password" |
-        ConvertTo-SecureString -AsPlainText -Force |
-        ConvertFrom-SecureString -Key $KeyBytes |
-        Out-File -FilePath $PWFilePath -Encoding UTF8
+        [byte[]]$KeyBytes = [System.IO.File]::ReadAllBytes($KeyPath)
+        Read-Host "Text to encrypt" | ConvertTo-SecureString -AsPlainText -Force | ConvertFrom-SecureString -Key $KeyBytes | Out-File -FilePath $FilePath -Encoding UTF8
     }
     catch {
-        throw "Encryption error: $_"
+        $sysThrMsg = "Encryption failed. $_"
+        throw [System.Security.Cryptography.CryptographicException]::new($sysThrMsg)
     }
 
-    $CipherObject = [PSCustomObject]@{
-        KeyPath    = $KeyPath
-        PWFilePath = $PWFilePath
-    }
+    # Silence function output
+    if ($OutNull) { return }
+
+    $CipherObject = [Cipher]::new(
+        $KeyPath,
+        $FilePath
+    )
 
     return $CipherObject
 }

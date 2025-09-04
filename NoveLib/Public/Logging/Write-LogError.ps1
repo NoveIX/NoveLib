@@ -15,9 +15,10 @@ function Write-LogError {
         [LogSetting]$LogSetting = $null
     )
 
-    # self-defined parameters
+    # --- self-defined parameters ---
     [string]$functionName = $MyInvocation.MyCommand.Name
     [int]$scriptLine = $MyInvocation.ScriptLineNumber
 
+    # Call Main function
     Write-Log -Message $Message -Level ERROR -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
 }

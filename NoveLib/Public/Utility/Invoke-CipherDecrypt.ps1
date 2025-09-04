@@ -1,36 +1,60 @@
 # File: NoveLib\Public\Utility\Invoke-CipherDecrypt.ps1
 function Invoke-CipherDecrypt {
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({ Test-Path $_ })]
         [string]$KeyPath,
+
         [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({ Test-Path $_ })]
-        [string]$PWFilePath,
-        [Parameter(Mandatory = $true, ParameterSetName = 'CipherCredObject', ValueFromPipeline = $true)]
-        [PSCustomObject]$CipherObject
+        [string]$FilePath,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'CipherObject', ValueFromPipeline = $true)]
+        [Cipher]$CipherObject
     )
+
+    # =================================================================================================== #
+
+    #### Handle path
 
     # Resolve path key
     if ($CipherObject) {
         $KeyPath = $CipherObject.KeyPath
-        $PWFilePath = $CipherObject.PWFilePath
-    }else {
-        $KeyPath = Resolve-Path -Path $KeyPath
-        $PWFilePath = Resolve-Path -Path $PWFilePath
+        $FilePath = $CipherObject.FilePath
+    }
+    else {
+        # Handle key path
+        try { $KeyPath = Resolve-Path -Path $KeyPath -ErrorAction Stop }
+        catch {
+            $sysThrMsg = "String file not found. $_"
+            throw [System.IO.FileNotFoundException]::new($sysThrMsg)
+        }
+
+        # Handle file path
+        try { $FilePath = Resolve-Path -Path $FilePath -ErrorAction Stop }
+        catch {
+            $sysThrMsg = "Key file not found. $_"
+            throw [System.IO.FileNotFoundException]::new($sysThrMsg)
+        }
     }
 
-    # Decript passoword
+    # =================================================================================================== #
+
+    #### Decript passoword
+
+    # Get the key and encrypted string and decrypt in a secure string
     try {
-        $EncryptedString = Get-Content -Path $PWFilePath -Raw
         $KeyBytes = [System.IO.File]::ReadAllBytes($KeyPath)
-        $SecurePassword = ConvertTo-SecureString -String $EncryptedString -Key $KeyBytes
+        [string]$EncryptedString = Get-Content -Path $FilePath -Raw
+        [securestring]$SecureString = ConvertTo-SecureString -String $EncryptedString -Key $KeyBytes -ErrorAction Stop
     }
     catch {
-        throw "Decryption failed. Possibly due to an invalid key or a corrupted password file. $_"
+        $sysThrMsg = "Decryption failed. $_"
+        throw [System.Security.Cryptography.CryptographicException]::new($sysThrMsg)
     }
 
-    return $SecurePassword
+    return $SecureString
 }

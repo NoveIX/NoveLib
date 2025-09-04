@@ -1,4 +1,5 @@
 # File: NoveLib\Public\Logging\Write-LogWarn.ps1
+
 function Write-LogWarn {
     [CmdletBinding()]
     param(
@@ -14,9 +15,10 @@ function Write-LogWarn {
         [LogSetting]$LogSetting = $null
     )
 
-    # self-defined parameters
+    # --- self-defined parameters ---
     [string]$functionName = $MyInvocation.MyCommand.Name
     [int]$scriptLine = $MyInvocation.ScriptLineNumber
 
+    # Call Main function
     Write-Log -Message $Message -Level WARN -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
 }

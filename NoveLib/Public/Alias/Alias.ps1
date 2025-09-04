@@ -1,9 +1,7 @@
 # File: NoveLib\Public\Alias\Alias.ps1
 
-#region Public
+#### Public
 
-#Tools -> System
+# System
 Set-Alias -Name "uptimeWin" -Value Get-ComputerUptime
 Set-Alias -Name "uptime" -Value Get-ComputerUptimeUnix
-
-#endregion

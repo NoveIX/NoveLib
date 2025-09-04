@@ -4,53 +4,49 @@ function Set-ItemAttributes {
     [CmdletBinding()]
     param (
         [switch]$SetHide,
-        [switch]$UnsetHide,
+        [switch]$RemoveHide,
         [switch]$ToggleHide,
 
         [switch]$SetReadOnly,
-        [switch]$UnsetReadOnly,
+        [switch]$RemoveReadOnly,
         [switch]$ToggleReadOnly,
 
         [Parameter(Mandatory = $true)]
         [string]$Path
     )
 
-    # --- Validazione gruppo Hidden ---
-    $hiddenCount = @($SetHide, $UnsetHide, $ToggleHide) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+    # =================================================================================================== #
+
+    #### Handle parameter
+
+    # --- Hidden group validation ---
+    $hiddenCount = @($SetHide, $RemoveHide, $ToggleHide) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
     if ($hiddenCount -gt 1) {
-        throw "Specifica solo uno tra -Hide, -Show o -Toggle."
+        $sysThrMsg = "Specify only one of -Hide, -Show, or -Toggle."
+        throw [System.ArgumentException]::new($sysThrMsg)
     }
 
-    # --- Validazione gruppo ReadOnly ---
-    $readonlyCount = @($SetReadOnly, $UnsetReadOnly, $ToggleReadOnly) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+    # --- ReadOnly group validation ---
+    $readonlyCount = @($SetReadOnly, $RemoveReadOnly, $ToggleReadOnly) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
     if ($readonlyCount -gt 1) {
-        throw "Specifica solo uno tra -SetReadOnly, -UnsetReadOnly o -ToggleReadOnly."
+        $sysThrMsg = "Specify only one of -SetReadOnly, -RemoveReadOnly, or -ToggleReadOnly."
+        throw [System.ArgumentException]::new($sysThrMsg)
     }
+
+    # =================================================================================================== #
+
+    #### Set attribute
 
     [System.IO.FileSystemInfo]$item = Get-Item -LiteralPath $Path -Force
 
     # --- Hidden operations ---
-    if ($SetHide) {
-        $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden
-    }
-    if ($UnsetHide) {
-        $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden)
-    }
-    if ($ToggleHide) {
-        $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden
-    }
+    if ($SetHide) { $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::Hidden }
+    if ($RemoveHide) { $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::Hidden) }
+    if ($ToggleHide) { $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::Hidden }
 
     # --- ReadOnly operations ---
-    if ($SetReadOnly) {
-        $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::ReadOnly
-    }
-    if ($UnsetReadOnly) {
-        $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
-    }
-    if ($ToggleReadOnly) {
-        $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::ReadOnly
-    }
-
-    return $item.Attributes
+    if ($SetReadOnly) { $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::ReadOnly }
+    if ($RemoveReadOnly) { $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly) }
+    if ($ToggleReadOnly) { $item.Attributes = $item.Attributes -bxor [System.IO.FileAttributes]::ReadOnly }
 }
 

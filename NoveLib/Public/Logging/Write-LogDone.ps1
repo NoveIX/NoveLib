@@ -15,9 +15,10 @@ function Write-LogDone {
         [LogSetting]$LogSetting = $null
     )
 
-    # self-defined parameters
+    # --- self-defined parameters ---
     [string]$functionName = $MyInvocation.MyCommand.Name
     [int]$scriptLine = $MyInvocation.ScriptLineNumber
 
+    # Call Main function
     Write-Log -Message $Message -Level DONE -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
 }

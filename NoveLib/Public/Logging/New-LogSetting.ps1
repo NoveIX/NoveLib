@@ -29,11 +29,16 @@ function New-LogSetting {
         [bool]$UseDotNET = $true
     )
 
+    # =================================================================================================== #
+
+    #### Begin
+
     # self-defined parameters
+    $userName = $env:USERNAME
     $FunctionName = $MyInvocation.MyCommand.Name
     $LineNumber = $MyInvocation.ScriptLineNumber
 
-    # Begin - Parameter validation
+    # Parameter validation
     if ($UseRecentLogFile -and -not $DateInLogFile) {
         Write-Warning "$($FunctionName) line $($LineNumber): Parameter 'UseRecentLogFile' requires 'DateInLogFile'."
     }
@@ -42,10 +47,7 @@ function New-LogSetting {
         Write-Warning "$($FunctionName) line $($LineNumber): Parameter 'RecentLogFileDelayMinute' requires 'UseRecentLogFile'."
     }
 
-
-
-    # Retrieve the current user name
-    $userName = $env:USERNAME
+    # =================================================================================================== #
 
     #### Handle Path
 
@@ -53,7 +55,7 @@ function New-LogSetting {
     if (-not $Path) {
         # If the script was not started from a file, use the current folder.
         $basePath = if ($MyInvocation.ScriptName) { $PSScriptRoot } else { $PWD }
-        $Path = Join-Path -Path $basePath -ChildPath "Log"
+        $Path = Join-Path -Path $basePath -ChildPath "log"
     }
     elseif (-not ([System.IO.Path]::IsPathRooted($Path))) {
         # Converts to absolute path if relative
@@ -62,14 +64,16 @@ function New-LogSetting {
 
     # Temp Path
     if (-not $Temp) {
-        $Temp = Join-Path -Path $Path -ChildPath "Temp"
+        $Temp = Join-Path -Path $Path -ChildPath "temp"
     }
     elseif (-not ([System.IO.Path]::IsPathRooted($Temp))) {
         # Converts to absolute path if relative
         $Temp = (Resolve-Path -Path (Join-Path -Path $PWD -ChildPath $Temp)).Path
     }
 
-    #### Make Directory
+    # =================================================================================================== #
+
+    #### Ensure Directory
 
     # Ensure log directory exists
     if (-not (Test-Path -Path $Path)) {
@@ -89,6 +93,8 @@ function New-LogSetting {
         }
     }
 
+    # =================================================================================================== #
+
     #### Handle Filename
 
     # Defines a log file name if missing
@@ -96,7 +102,7 @@ function New-LogSetting {
         $Filename = if ($MyInvocation.MyCommand.Path) {
             [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Path)
         }
-        else { "Log" }
+        else { "log" }
     }
 
     # Define default log extension if missing
@@ -107,6 +113,8 @@ function New-LogSetting {
         $Extension = $Extension.TrimStart(".").ToLower()
         if (-not $Extension) { $Extension = "log" }
     }
+
+    # =================================================================================================== #
 
     #### Build log path
 
@@ -129,9 +137,11 @@ function New-LogSetting {
             if (Test-Path $dateTempFile) {
                 $fileCurrentDate = Get-Content $dateTempFile
 
+                # Convert data
                 $fileDateTime = [DateTime]::ParseExact($fileCurrentDate, "yyyy-MM-dd_HH-mm", $null)
                 $currentDateTime = [DateTime]::ParseExact($currentDate, "yyyy-MM-dd_HH-mm", $null)
 
+                # Validate if bigger than current data. if yes use existing file
                 if ($fileDateTime.AddMinutes($RecentLogFileDelayMinute) -ge $currentDateTime) {
                     $currentDate = $fileCurrentDate
                     $writeDate = $false
@@ -157,9 +167,11 @@ function New-LogSetting {
         $filePath = Join-Path -Path $Path -ChildPath $file
     }
 
+    # =================================================================================================== #
 
+    #### Return setting object with class NoveLib.LogSetting
 
-    # Create and return an instance of the NoveLib_LogSetting class with the provided configuration parameters
+    # Create and return an instance of the NoveLib.LogSetting class with the provided configuration parameters
     $logSettingObject = [LogSetting]::new(
         $filePath,
         $LogMinLevel,

@@ -15,16 +15,14 @@ function Convert-PathToUNC {
         $drive = $matches[1]
         $rest = $matches[2]
 
-        # Build UNC path: if no $rest, no extra backslash after share
-        if ([string]::IsNullOrEmpty($rest)) {
-            return "\\$ComputerName\$drive$"
-        }
+        # Build and return UNC path: if no $rest, no extra backslash after share
+        if ([string]::IsNullOrEmpty($rest)) { return "\\$ComputerName\$drive$" }
 
+        # Build and return UNC path
         return "\\$ComputerName\$drive`$\$rest"
     }
     else {
-        throw [System.ArgumentException]::new(
-            "The path '$Path' is not a valid local path (e.g., 'C:\' or 'C:\Folder\File.txt')."
-        )
+        $sysThrMsg = "The path '$Path' is not a valid local path (e.g., 'C:\' or 'C:\Folder\File.txt')."
+        throw [System.ArgumentException]::new($sysThrMsg)
     }
 }
