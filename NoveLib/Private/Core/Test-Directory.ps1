@@ -25,7 +25,7 @@ function Test-Directory {
 
     elseif ($Ensure) {
         if (-not (Test-Path @params)) {
-            New-Directory -Path $Path -Silence -Force
+            New-Item -Path $Path -ItemType Directory -Force | Out-Null
             return $true
         }
         return $false
