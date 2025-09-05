@@ -1,6 +1,6 @@
 # File: NoveLib\Public\ui\Write-AsciiArt.ps1
 
-function Write-AsciiArt {
+function Write-NoveAsciiArt {
     [CmdletBinding()]
     param (
         [ValidateSet("BigMoneyNE", "BigMoneyNW", "BigMoneySE", "BigMoneySW", "Banner3", "Binary", "Decimal", "Big", "Alligator2", "Broadway", "Doh", "Fraktur", "Roman", "Univers")]
