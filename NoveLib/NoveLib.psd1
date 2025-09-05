@@ -116,15 +116,18 @@
             LicenseUri   = 'https://www.gnu.org/licenses/gpl-3.0'
 
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri = 'https://github.com/NoveIX/NoveLib'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
             ReleaseNotes = '
+            ### Version 2.0.0 (Current)
+                - Increse performance
+                - change logic in Lazy Loading
             ### Version 1.0.0 (Current)
-            - First release
+                - First release
             '
 
         } # End of PSData hashtable
