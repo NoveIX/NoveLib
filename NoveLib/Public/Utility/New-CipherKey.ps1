@@ -45,9 +45,18 @@ function New-CipherKey {
     ####  Handle Filename
 
     # key name
-    if ($AESKeyLength -eq 128) { if (-not $KeyName) { $KeyName = "AES128" } }
-    elseif ($AESKeyLength -eq 128) { if (-not $KeyName) { $KeyName = "AES192" } }
-    elseif ($AESKeyLength -eq 256) { if (-not $KeyName) { $KeyName = "AES256" } }
+    if ($AESKeyLength -eq 128) {
+        if (-not $KeyName) { $KeyName = "AES128" }
+        $keyByteLength = 16
+    }
+    elseif ($AESKeyLength -eq 128) {
+        if (-not $KeyName) { $KeyName = "AES192" }
+        $keyByteLength = 24
+    }
+    elseif ($AESKeyLength -eq 256) {
+        if (-not $KeyName) { $KeyName = "AES256" }
+        $keyByteLength = 32
+    }
 
     # Define default key extension if missing
     if (-not $Extension -or [string]::IsNullOrWhiteSpace($Extension) -or $Extension -eq ".") {
