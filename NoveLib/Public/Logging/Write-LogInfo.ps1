@@ -12,12 +12,16 @@ function Write-LogInfo {
         [switch]$PrintTime,
 
         # Force use another log setting
-        [LogSetting]$LogSetting = $null
+        [LogSetting]$LogSetting
     )
 
     # --- self-defined parameters ---
     [string]$functionName = $MyInvocation.MyCommand.Name
     [int]$scriptLine = $MyInvocation.ScriptLineNumber
+
+    if (-not $PSBoundParameters.ContainsKey('LogSetting')) {
+        $LogSetting = $Script:LogSetting
+    }
 
     # Call Main function
     Write-Log -Message $Message -Level INFO -LogSetting $LogSetting -Print:$Print -PrintTime:$PrintTime -FunctionName $functionName -ScriptLine $scriptLine
