@@ -40,15 +40,15 @@ function Copy-File {
 
     #Counter
     [int]$currentItem = 0
-    [int]$totalItem = $items.Count
+    [int]$totalItems = $items.Count
 
     foreach ($item in $items) {
         # Progress bar
         $currentItem++
-        [double]$averagePercent = (($currentItem / $totalItem) * 100)
+        [double]$averagePercent = (($currentItem / $totalItems) * 100)
         [double]$percentComplete = [math]::Round($averagePercent, $decimalPlaces)
         [string]$percentString = $percentComplete.ToString("N$decimalPlaces")
-        [string]$status = "Item $currentItem of $totalItem ($percentString `%) - $($item.Name)"
+        [string]$status = "Item $currentItem of $totalItems ($percentString `%) - $($item.Name)"
         Write-Progress -Id 0 -Activity "Copy in progress..." -Status $status -PercentComplete $percentComplete
 
         # Calculate path relative path on destination path
@@ -70,12 +70,8 @@ function Copy-File {
         [System.IO.FileSystemInfo]$sourceItem = Get-Item -LiteralPath $item.FullName -Force
         [System.IO.FileSystemInfo]$destinationItem = Get-Item -LiteralPath $DestinationFullPath -Force
         if ($sourceItem -and $destinationItem) {
-            try {
-                $destinationItem.Attributes = $sourceItem.Attributes
-            }
-            catch {
-                Write-Warning -Message "($currentItem / $totalItem) Failed to set attributes on: $DestinationFullPath - $_"
-            }
+            try { $destinationItem.Attributes = $sourceItem.Attributes }
+            catch { Write-Warning -Message "($currentItem / $totalItem) Failed to set attributes on: $DestinationFullPath - $($_.Exception.Message)" }
         }
     }
 

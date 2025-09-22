@@ -1,4 +1,4 @@
-# File: NoveLib\Public\ui\Write-AsciiArt.ps1
+# File: NoveLib\Public\ui\Write-NoveAsciiArt.ps1
 
 function Write-NoveAsciiArt {
     [CmdletBinding()]
@@ -179,4 +179,5 @@ o8o        `8  `Y8bod8P'     `8'     `Y8bod8P' o888ooooood8 o888o  `Y8bod8P'
     Write-Host "`n$AsciiArt"
     Write-Host "`nBy NoveIX`n"
     Start-Sleep -Seconds 2
+    Clear-Host
 }
