@@ -2,14 +2,13 @@
 
 function Write-LogColorMap {
     param (
-        # Log level - restricted to specific set of valid values
         [Parameter(Mandatory = $true)]
         [ValidateSet("TRACE", "DEBUG", "INFO", "ERROR", "FAIL", "FATAL", "DONE")]
         [string]$Level
     )
 
-    # Define a map from log levels to console colors
-    $colorMap = @{
+    # Define log color map
+    [hashtable]$colorMap = @{
         "TRACE" = 'DarkGray'
         "DEBUG" = 'Gray'
         "INFO"  = 'DarkCyan'
@@ -19,6 +18,5 @@ function Write-LogColorMap {
         "DONE"  = 'Green'
     }
 
-    # Return the color corresponding to the log level
     return $colorMap[$Level]
 }

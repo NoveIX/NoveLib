@@ -42,10 +42,15 @@ function Copy-File {
     [int]$currentItem = 0
     [int]$totalItems = $items.Count
 
+    [int]$currentByte = 0
+    [double]$totalBytes = 0
+    foreach ($item in $items) { $totalBytes += $item.Length }
+
     foreach ($item in $items) {
         # Progress bar
         $currentItem++
-        [double]$averagePercent = (($currentItem / $totalItems) * 100)
+        $currentByte += $item.Length
+        [double]$averagePercent = (((($currentItem / $totalItems) + ($currentByte / $totalBytes)) / 2) * 100)
         [double]$percentComplete = [math]::Round($averagePercent, $decimalPlaces)
         [string]$percentString = $percentComplete.ToString("N$decimalPlaces")
         [string]$status = "Item $currentItem of $totalItems ($percentString `%) - $($item.Name)"

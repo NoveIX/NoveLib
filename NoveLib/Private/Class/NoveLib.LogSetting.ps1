@@ -1,7 +1,7 @@
 # File: NoveLib\Private\Class\NoveLib.LogSetting.ps1
 
 class LogSetting {
-    # Class properties (e.g., [string]$LogPath, [bool]$UseMilliseconds, etc.)
+    # Class properties
     [string]$FilePath
     [string]$LogMinLevel
     [string]$LogFormat
@@ -9,7 +9,7 @@ class LogSetting {
     [bool]$useMillisecond
     [bool]$useDotNET
 
-    # Constructor to initialize the log setting object
+    # Constructor
     LogSetting(
         [string]$FilePath,
         [string]$LogMinLevel,
@@ -25,6 +25,4 @@ class LogSetting {
         $this.useMillisecond = $useMillisecond
         $this.useDotNET = $useDotNET
     }
-
-    # Additional constructors or methods can be added here
 }

@@ -69,7 +69,32 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    # FunctionsToExport = ''
+    FunctionsToExport = @(
+        "Convert-ByteToSize"
+        "Convert-ByteToSizeString"
+        "Convert-CIDRToMask"
+        "Convert-MaskToCIDR"
+        "Convert-PathToUNC"
+        "Convert-StringToMacAddress"
+        "Copy-File"
+        "Find-NonAsciiCharacters"
+        "Get-ComputerUptime"
+        "Invoke-CipherDecrypt"
+        "Invoke-CipherEncrypt"
+        "Invoke-DecryptSecureString"
+        "New-CipherKey"
+        "New-LogSetting"
+        "Set-DefaultLogSetting"
+        "Write-LogDebug"
+        "Write-LogDone"
+        "Write-LogError"
+        "Write-LogFatal"
+        "Write-LogInfo"
+        "Write-LogTrace"
+        "Write-LogWarn"
+        "Write-NoveAsciiArt"
+        "WinUptime"
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     # CmdletsToExport = ''
@@ -78,7 +103,30 @@
     # VariablesToExport = ''
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    # AliasesToExport = ''
+    AliasesToExport   = @(
+        "ByteToSize"
+        "ByteToSizeString"
+        "CIDRToMask"
+        "MaskToCIDR"
+        "PathToUNC"
+        "StringToMacAddress"
+        "NonAsciiCharacters"
+        "ComputerUptime"
+        "CipherDecrypt"
+        "CipherEncrypt"
+        "DecryptSecureString"
+        "CipherKey"
+        "LogSetting"
+        "DefaultLogSetting"
+        "LogDebug"
+        "LogDone"
+        "LogError"
+        "LogFatal"
+        "LogInfo"
+        "LogTrace"
+        "LogWarn"
+        "NoveAsciiArt"
+    )
 
     # DSC resources to export from this module
     # DscResourcesToExport = @()
@@ -116,7 +164,7 @@
             LicenseUri   = 'https://www.gnu.org/licenses/gpl-3.0'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/NoveIX/NoveLib'
+            ProjectUri   = 'https://github.com/NoveIX/NoveLib'
 
             # A URL to an icon representing this module.
             # IconUri = ''

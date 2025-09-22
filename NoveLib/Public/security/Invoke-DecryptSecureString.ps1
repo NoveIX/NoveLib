@@ -4,7 +4,6 @@ function Invoke-DecryptSecureString {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [ValidateNotNullOrEmpty()]
         [securestring]$SecureString
     )
 

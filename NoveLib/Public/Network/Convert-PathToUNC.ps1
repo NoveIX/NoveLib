@@ -22,7 +22,7 @@ function Convert-PathToUNC {
         return "\\$ComputerName\$drive`$\$rest"
     }
     else {
-        $sysThrMsg = "The path '$Path' is not a valid local path (e.g., 'C:\' or 'C:\Folder\File.txt')."
-        throw [System.ArgumentException]::new($sysThrMsg)
+        $sysMsg = "The path '$Path' is not a valid local path (e.g., 'C:\' or 'C:\Folder\File.txt')."
+        throw [System.ArgumentException]::new($sysMsg)
     }
 }

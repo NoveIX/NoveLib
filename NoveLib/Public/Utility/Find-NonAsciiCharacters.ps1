@@ -8,9 +8,11 @@ function Find-NonAsciiCharacters {
         [string]$Path
     )
 
+    # Get file content
     $lines = Get-Content -Path $Path
     $lineNumber = 0
 
+    # For each line check every char
     foreach ($line in $lines) {
         $lineNumber++
         $chars = $line.ToCharArray()

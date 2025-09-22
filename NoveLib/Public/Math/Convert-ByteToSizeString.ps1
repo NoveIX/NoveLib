@@ -12,7 +12,7 @@ function Convert-ByteToSizeString {
         [int]$DecimalPlaces = 2
     )
 
-    # --- Converter ---
+    # Convert
     if ($Byte -ge 1TB) { $result = "{0:N$DecimalPlaces} TB" -f ($Byte / 1TB) }
     elseif ($Byte -ge 1GB) { $result = "{0:N$DecimalPlaces} GB" -f ($Byte / 1GB) }
     elseif ($Byte -ge 1MB) { $result = "{0:N$DecimalPlaces} MB" -f ($Byte / 1MB) }

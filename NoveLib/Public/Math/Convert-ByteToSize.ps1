@@ -8,7 +8,7 @@ function Convert-ByteToSize {
         [long]$Byte
     )
 
-    # --- Converter ---
+    # Convert
     if ($Byte -ge 1TB) { $result = ($Byte / 1TB) }
     elseif ($Byte -ge 1GB) { $result = ($Byte / 1GB) }
     elseif ($Byte -ge 1MB) { $result = ($Byte / 1MB) }

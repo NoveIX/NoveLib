@@ -3,47 +3,42 @@ function Invoke-CipherDecrypt {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
-        [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-Path $_ })]
-        [string]$KeyPath,
+        [System.Object]$KeyPath,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
-        [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-Path $_ })]
-        [string]$FilePath,
+        [System.Object]$FilePath,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'CipherObject', ValueFromPipeline = $true)]
         [Cipher]$CipherObject
     )
 
-    # =================================================================================================== #
+    # ====================================================[ Validate parameter ]==================================================== #
 
-    #### Handle path
-
-    # Resolve path key
     if ($CipherObject) {
         $KeyPath = $CipherObject.KeyPath
         $FilePath = $CipherObject.FilePath
     }
     else {
-        # Handle key path
-        try { $KeyPath = Resolve-Path -Path $KeyPath -ErrorAction Stop }
-        catch {
-            $sysThrMsg = "String file not found. $_"
-            throw [System.IO.FileNotFoundException]::new($sysThrMsg)
+        try {
+            if ($KeyPath -is [System.IO.FileInfo]) { $KeyPath = $KeyPath.FullName }
+            else { $KeyPath = (Resolve-Path -Path $KeyPath -ErrorAction Stop).Path }
         }
-
-        # Handle file path
-        try { $FilePath = Resolve-Path -Path $FilePath -ErrorAction Stop }
         catch {
             $sysThrMsg = "Key file not found. $_"
             throw [System.IO.FileNotFoundException]::new($sysThrMsg)
         }
+
+        try {
+            if ($FilePath -is [System.IO.FileInfo]) { $FilePath = $FilePath.FullName }
+            else { $FilePath = (Resolve-Path -Path $FilePath -ErrorAction Stop).Path }
+        }
+        catch {
+            $sysMsg = "String file not found. $($_.Exception.Message)"
+            throw [System.IO.FileNotFoundException]::new($sysMsg)
+        }
     }
 
-    # =================================================================================================== #
-
-    #### Decript passoword
+    # =====================================================[ Decript passoword ]==================================================== #
 
     # Get the key and encrypted string and decrypt in a secure string
     try {
@@ -52,7 +47,7 @@ function Invoke-CipherDecrypt {
         [securestring]$SecureString = ConvertTo-SecureString -String $EncryptedString -Key $KeyBytes -ErrorAction Stop
     }
     catch {
-        $sysThrMsg = "Decryption failed. $_"
+        $sysThrMsg = "Decryption failed. $($_.Exception.Message)"
         throw [System.Security.Cryptography.CryptographicException]::new($sysThrMsg)
     }
 

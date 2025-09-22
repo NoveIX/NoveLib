@@ -6,7 +6,7 @@ function Convert-StringToMacAddress {
         [Parameter(Mandatory = $true)]
         [string]$InputString,
 
-        [ValidateSet("-", ":", "", " ")]  # Allow "-", ":", no separator, and space
+        [ValidateSet("-", ":")]  # Allow "-", ":"
         [string]$SeparatorChar = "-"
     )
 
@@ -15,8 +15,9 @@ function Convert-StringToMacAddress {
 
     # Validate that the string has exactly 12 hex characters
     if ($hexOnly.Length -ne 12) {
-        $sysThrMsg = "The MAC address must contain exactly 12 hexadecimal characters. Provided: $($hexOnly.Length)."
-        throw [System.ArgumentException]::new($sysThrMsg)
+        $sysMsg = "The MAC address must contain exactly 12 hexadecimal characters. "
+        $sysMsg += "Provided: $($hexOnly.Length)."
+        throw [System.ArgumentException]::new($sysMsg)
     }
 
     # Split the string into pairs of 2 characters
