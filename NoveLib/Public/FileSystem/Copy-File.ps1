@@ -24,13 +24,10 @@ function Copy-File {
         New-Item -Path $Destination -ItemType Directory -Force | Out-Null
     }
     else {
-        $items = Get-ChildItem -Path $Destination -Force
-        if (-not ($items.Count -eq 0)) {
-            if (-not ($Force)) {
-                throw [System.InvalidOperationException]::new(
-                    "The path '$Destination' already exists and is not empty. Operation aborted to prevent data loss. Use the 'Force' parameter to overwrite the existing contents."
-                )
-            }
+        if ((Get-ChildItem -Path $Destination -Force).Count -gt 0 -and -not $Force) {
+            $sysMsg = "The path '$Destination' already exists and is not empty. "
+            $sysMsg += "Operation aborted to prevent data loss. Use the 'Force' parameter to overwrite the existing contents."
+            throw [System.InvalidOperationException]::new($sysMsg)
         }
     }
 

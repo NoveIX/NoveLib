@@ -11,26 +11,22 @@ function New-LogSetting {
 
         # log User
         [switch]$LogUser,
-        [switch]$LogUserDir,
+        [switch]$LogUserPath,
 
-        # Insert date in the name
+        # Insert log format
         [ValidateSet('None', 'Date', 'Datetime')]
         [string]$DateLogName = "None",
         [ValidateSet('Time', 'Datetime')]
         [string]$LogFormat = "Time",
         [switch]$UseMillisecond,
 
-        # Print in console
+        # Console mode
         [ValidateSet("None", "Message", "Timestamp")]
         [string]$ConsoleOutput = "None",
 
-        # use .NET to write in the file
+        # Write with .net
         [bool]$UseDotNET = $true
     )
-
-    # =======================================================[ Self defined ]======================================================= #
-
-    $userName = $env:USERNAME
 
     # =======================================================[ Handle path ]======================================================== #
 
@@ -49,16 +45,12 @@ function New-LogSetting {
 
     # Defines a log file name if missing
     if (-not $Filename) {
-        $Filename = if ($MyInvocation.MyCommand.Path) {
+        $Filename = if ($MyInvocation.ScriptName) {
             [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Path)
         }
         else { "log" }
     }
-
-    $Filename = $Filename.TrimEnd('.')
-
-    # Force the extension change
-    $Filename = [System.IO.Path]::ChangeExtension($Filename, ".log")
+    else { $Filename = [System.IO.Path]::GetFileNameWithoutExtension($Filename) }
 
     # ====================================================[ Construct log path ]==================================================== #
 
@@ -66,22 +58,20 @@ function New-LogSetting {
     $file = $Filename
 
     # Add username if required
-    if ($LogUser) { $file += "_$userName" }
+    if ($LogUser) { $file += "_$env:USERNAME" }
 
     # Date management in file name
-    if ($DateLogName -eq "Date") {$file += Get-Date -Format "yyyy-MM-dd"}
-    elseif ($DateLogName -eq "Datetime") {$file += Get-Date -Format "yyyy-MM-dd_hh-mm-ss"}
+    if ($DateLogName -eq "Date") { $file += "_$(Get-Date -Format "yyyy-MM-dd")" }
+    elseif ($DateLogName -eq "Datetime") { $file += "_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")" }
 
     # Add extension to file
-    $file += ".$Extension"
+    $file += ".log"
 
     # Construct the full path to the file
-    if ($LogUserDir) { $FilePath = Join-Path -Path $logUserPath -ChildPath $file }
+    if ($LogUserPath) { $FilePath = Join-Path -Path $logUserPath -ChildPath $file }
     else { $FilePath = Join-Path -Path $Path -ChildPath $file }
 
-    # =================================================================================================== #
-
-    #### Return setting object with class NoveLib.LogSetting
+    # ================================================[ Return NoveLib.LogSetting ]================================================= #
 
     # Create and return an instance of the NoveLib.LogSetting class with the provided configuration parameters
     $logSettingObject = [LogSetting]::new(

@@ -8,7 +8,7 @@ function Write-Log {
         [string]$Message,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet("TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "DONE")]
+        [ValidateSet('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL', 'DONE')]
         [string]$Level,
 
         [Parameter(Mandatory = $true)]
@@ -16,54 +16,19 @@ function Write-Log {
 
         # Force console print
         [switch]$Print,
-        [switch]$PrintTime,
-
-        #Function
-        [string]$FunctionName,
-        [int]$ScriptLine
+        [switch]$PrintTime
     )
 
-    # Retrive LogSetting
-    if (-not $LogSetting) {
-        [LogSetting]$LogSetting = $Script:LogSetting
+    # ========================================================[ Definition ]======================================================== #
 
-        if (-not $LogSetting) {
-            $sysThrMsg = "$FunctionName line $ScriptLine error: LogSetting is not defined as a script variable. " +
-            "Unable to use the Write-Log function"
-            throw [System.InvalidOperationException]::new($sysThrMsg)
-        }
-    }
-
-    if ($Print -and $PrintTime) {
-        $sysThrMsg = "$FunctionName line ${LineNumber}: 'PrintTime' is equivalent to 'Print' but includes a timestamp. " +
-        "It is recommended to use only one to avoid redundancy."
-
-        Write-LogHost -Message $sysThrMsg -Level DEBUG
-        $Print = $false
-    }
-
-    # =================================================================================================== #
-
-    #### Definition
-
-    # Definition
+    # Separate LogSetting
     [string]$FilePath = $LogSetting.FilePath
-    [string]$LogMinLevel = $LogSetting.LogMinLevel
-    [string]$ConsoleOutputMode = $LogSetting.ConsoleOutputMode
+    [string]$LogFormat = $LogSetting.LogFormat
+    [string]$ConsoleOutput = $LogSetting.ConsoleOutput
     [bool]$useMilliseconds = $LogSetting.useMilliseconds
     [bool]$useDotNET = $LogSetting.useDotNET
 
-    # =================================================================================================== #
-
-    #### Validate parameter
-
-    # Validate Level Log definition
-    [array]$levelOrder = @("TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "DONE")
-    [int]$curIndex = $levelOrder.IndexOf($Level)
-    [int]$minIndex = $levelOrder.IndexOf($LogMinLevel)
-
-    # Skip this log if its level is below the minimum
-    if ($curIndex -lt $minIndex) { return }
+    # =======================================================[ Console mode ]======================================================= #
 
     # Console output configuration
     [hashtable]$outMap = @{
@@ -73,21 +38,23 @@ function Write-Log {
     }
 
     # Return the corresponding mapping if the mode is valid
-    [hashtable]$clsConfig = $outMap[$ConsoleOutputMode]
+    [hashtable]$consoleConfig = $outMap[$ConsoleOutput]
 
-    # Prepare log message with timestamp (full date and time)
-    if ($useMilliseconds) { $timeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff" }
-    else { $timeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss" }
+    # Prepare time output
+    $format = switch ($LogFormat) {
+        "Time" { if ($useMilliseconds) { "HH:mm:ss.fff" } else { "HH:mm:ss" } }
+        "Datetime" { if ($useMilliseconds) { "yyyy-MM-dd HH:mm:ss.fff" } else { "yyyy-MM-dd HH:mm:ss" } }
+    }
 
-    # =================================================================================================== #
+    $timeStamp = Get-Date -Format $format
 
-    #### Write console
+    # ======================================================[ Write console ]======================================================= #
 
     # Print messages in Console
-    if ($clsConfig.msg -or $Print) {
+    if ($consoleConfig.msg -or $Print) {
 
         # Print Time
-        if ($clsConfig.time -or $PrintTime) { Write-Host "[$timeStamp] " -NoNewline }
+        if ($consoleConfig.time -or $PrintTime) { Write-Host "[$timeStamp] " -NoNewline }
 
         # Retrieves color for level, defaulting to no color
         [string]$color = Write-LogColorMap -Level $Level
@@ -98,27 +65,30 @@ function Write-Log {
         Write-Host " - $Message"
     }
 
-    # =================================================================================================== #
+    # ======================================================[ Write log file ]====================================================== #
 
-    #### Write log file
+    # Create file if not exist
+    if (-not (Test-Path -Path $FilePath)) { New-Item -Path $FilePath -ItemType File -Force | Out-Null }
 
     # Log file output format
     [string]$logFormat = "[$timeStamp] [$Level] - $Message"
 
-    # Writes and adds the message to the log file using .NET to enable file sharing
+    # Write log format level and message to the log file, using .NET to enable file sharing
     $fs = $null
     $sw = $null
 
     try {
         if ($useDotNET) {
             $fs = [System.IO.File]::Open($FilePath, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::Read)
-            $sw = New-Object System.IO.StreamWriter($fs)
+            $sw = New-Object System.IO.StreamWriter($fs, [System.Text.Encoding]::UTF8)
             $sw.WriteLine($logFormat)
             $sw.Flush()
         }
+
+        # Use Powershell Add-Content
         else { Add-Content -Path $FilePath -Value $logFormat }
     }
-    catch { Write-Error "Error while writing to log file: $_" }
+    catch { Write-Error "Error while writing to log file: $($_.Exception.Message)" }
     finally {
         if ($sw) { $sw.Close() }
         if ($fs) { $fs.Close() }
