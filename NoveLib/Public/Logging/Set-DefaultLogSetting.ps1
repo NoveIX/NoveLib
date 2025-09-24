@@ -32,4 +32,6 @@ function Set-DefaultLogSetting {
     $Script:DefaultLogSetting = New-LogSetting -Filename $Filename -Path $Path -LogMinLevel $LogMinLevel -LogUser:$LogUser `
         -LogUserPath:$LogUserPath -DateLogName $DateLogName -LogFormat $LogFormat -UseMillisecond:$UseMillisecond `
         -ConsoleOutput $ConsoleOutput -UseDotNET:$UseDotNET
+
+    return $DefaultLogSetting
 }
