@@ -11,7 +11,7 @@ function New-LogSetting {
 
         # log User
         [switch]$LogUser,
-        [switch]$LogUserPath,
+        [switch]$LogUserSubPath,
 
         # Insert log format
         [ValidateSet('None', 'Date', 'Datetime')]
