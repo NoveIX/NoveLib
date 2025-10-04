@@ -68,7 +68,7 @@ function New-LogSetting {
     $file += ".log"
 
     # Construct the full path to the file
-    if ($LogUserPath) { $FilePath = Join-Path -Path $logUserPath -ChildPath $file }
+    if ($LogUserSubPath) { $FilePath = Join-Path -Path $LogUserSubPath -ChildPath $file }
     else { $FilePath = Join-Path -Path $Path -ChildPath $file }
 
     # ================================================[ Return NoveLib.LogSetting ]================================================= #
