@@ -11,7 +11,7 @@ function Set-DefaultLogSetting {
 
         # log User
         [switch]$LogUser,
-        [switch]$LogUserPath,
+        [switch]$LogUserSubPath,
 
         # Insert date in the name
         [ValidateSet('None', 'Date', 'Datetime')]
@@ -30,7 +30,7 @@ function Set-DefaultLogSetting {
 
     # Set Module scope default log setting
     $Script:DefaultLogSetting = New-LogSetting -Filename $Filename -Path $Path -LogMinLevel $LogMinLevel -LogUser:$LogUser `
-        -LogUserPath:$LogUserPath -DateLogName $DateLogName -LogFormat $LogFormat -UseMillisecond:$UseMillisecond `
+        -LogUserSubPath:$LogUserSubPath -DateLogName $DateLogName -LogFormat $LogFormat -UseMillisecond:$UseMillisecond `
         -ConsoleOutput $ConsoleOutput -UseDotNET:$UseDotNET
 
     return $DefaultLogSetting
