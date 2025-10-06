@@ -28,7 +28,7 @@ function New-LogSetting {
         [bool]$UseDotNET = $true
     )
 
-    # =======================================================[ Handle path ]======================================================== #
+    # ========================================[ Handle path ]========================================= #
 
     # Log Path
     if (-not $Path) {
@@ -41,7 +41,7 @@ function New-LogSetting {
         $Path = (Resolve-Path -Path (Join-Path -Path $PWD -ChildPath $Path)).Path
     }
 
-    # =====================================================[ Handle Filename ]====================================================== #
+    # ======================================[ Handle Filename ]======================================= #
 
     # Defines a log file name if missing
     if (-not $Filename) {
@@ -52,7 +52,7 @@ function New-LogSetting {
     }
     else { $Filename = [System.IO.Path]::GetFileNameWithoutExtension($Filename) }
 
-    # ====================================================[ Construct log path ]==================================================== #
+    # =====================================[ Construct log path ]===================================== #
 
     # Start dialing the filename
     $file = $Filename
@@ -71,7 +71,7 @@ function New-LogSetting {
     if ($LogUserSubPath) { $FilePath = Join-Path -Path $LogUserSubPath -ChildPath $file }
     else { $FilePath = Join-Path -Path $Path -ChildPath $file }
 
-    # ================================================[ Return NoveLib.LogSetting ]================================================= #
+    # =================================[ Return NoveLib.LogSetting ]================================== #
 
     # Create and return an instance of the NoveLib.LogSetting class with the provided configuration parameters
     $logSettingObject = [LogSetting]::new(
