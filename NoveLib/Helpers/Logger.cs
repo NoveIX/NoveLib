@@ -10,38 +10,26 @@ using System.Threading.Tasks;
 
 namespace NoveLib.Helpers
 {
-    /// <summary>
-    /// Specifies the severity level of a log message.
-    /// </summary>
     public enum LogLevel
     {
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Fatal,
-        Done
+        Trace, Debug, Info, Warn, Error, Fatal, Done
     }
 
     public static class Logger
     {
-        // Log format map
         private static readonly Dictionary<string, string> LogTimeFormatMap = new()
         {
             ["Time"] = "HH:mm:ss",
             ["Datetime"] = "yyyy-MM-dd HH:mm:ss"
         };
 
-        // Log console map
         private static readonly Dictionary<string, (bool text, bool time)> ConsoleOutputMap = new()
         {
-            ["None"] = (text: false, time: false),
-            ["Message"] = (text: true, time: false),
-            ["MessageAndTime"] = (text: true, time: true)
+            ["None"] = (false, false),
+            ["Message"] = (true, false),
+            ["MessageAndTime"] = (true, true)
         };
 
-        // Log color map
         private static readonly Dictionary<LogLevel, ConsoleColor> LogLevelColorMap = new()
         {
             [LogLevel.Trace] = ConsoleColor.DarkGray,
@@ -52,8 +40,6 @@ namespace NoveLib.Helpers
             [LogLevel.Fatal] = ConsoleColor.DarkRed,
             [LogLevel.Done] = ConsoleColor.Green,
         };
-        
-        // Get time stamp
         private static string GetTimestamp(string format, bool millisecond)
         {
             string logFormat = LogTimeFormatMap[format];
@@ -61,7 +47,6 @@ namespace NoveLib.Helpers
             return DateTime.Now.ToString(logFormat);
         }
 
-        // Write log in console
         internal static void WriteConsoleLog(LogLevel level, string message)
         {
             Console.Write("[");
@@ -71,23 +56,17 @@ namespace NoveLib.Helpers
             Console.WriteLine($"] - {message}");
         }
 
-
-
         internal static void WriteLog(LogLevel level, string message, LogSetting setting, bool print, bool printTime)
         {
-            // Compare the two levels and return
             if (level < setting.LogMinLevel) return;
 
-            // Scompose log setting
             string logPath = setting.LogPath;
             string logFormat = setting.LogFormat;
             string consoleOutput = setting.ConsoleOutput;
             bool millisecond = setting.Millisecond;
 
-            // Get time stamp
             string timeStamp = GetTimestamp(logFormat, millisecond);
 
-            // Define console output
             var (text, time) = ConsoleOutputMap[consoleOutput];
             bool printMsg = text || print;
             bool printMsgTime = time || printTime;
@@ -98,18 +77,12 @@ namespace NoveLib.Helpers
                 WriteConsoleLog(level, message);
             }
 
-            // Compose final log line
             string logLine = $"[{timeStamp}] [{level}] - {message}";
 
-            // Ensure log file and write with share
             FileSystemHelper.NewFile(logPath);
             try
             {
-                using FileStream fs = new(
-                    logPath,
-                    FileMode.Append,
-                    FileAccess.Write,
-                    FileShare.Read);
+                using FileStream fs = new(logPath, FileMode.Append, FileAccess.Write, FileShare.Read);
                 using StreamWriter sw = new(fs, Encoding.UTF8);
                 sw.WriteLine(logLine);
                 sw.Flush();
