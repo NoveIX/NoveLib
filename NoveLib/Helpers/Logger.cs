@@ -15,85 +15,91 @@ namespace NoveLib.Helpers
     /// </summary>
     public enum LogLevel
     {
-        TRACE,
-        DEBUG,
-        INFO,
-        WARN,
-        ERROR,
-        FATAL,
-        DONE
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error,
+        Fatal,
+        Done
     }
 
     public static class Logger
     {
-        private static readonly Dictionary<string, string> LogTimeFormat = new()
+        // Log format map
+        private static readonly Dictionary<string, string> LogTimeFormatMap = new()
         {
             ["Time"] = "HH:mm:ss",
             ["Datetime"] = "yyyy-MM-dd HH:mm:ss"
         };
 
-        private static readonly Dictionary<string, (bool text, bool time)> LogConsoleOutput = new()
-                        {
-                ["None"] = (text: false, time: false),
-                ["Message"] = (text: true, time: false),
-                ["MessageAndTime"] = (text: true, time: true)
-            };
-
-    // Console color log map
-    private static readonly Dictionary<LogLevel, ConsoleColor> LogColorMap = new()
+        // Log console map
+        private static readonly Dictionary<string, (bool text, bool time)> ConsoleOutputMap = new()
         {
-            [LogLevel.TRACE] = ConsoleColor.DarkGray,
-            [LogLevel.DEBUG] = ConsoleColor.Gray,
-            [LogLevel.INFO] = ConsoleColor.DarkCyan,
-            [LogLevel.WARN] = ConsoleColor.DarkYellow,
-            [LogLevel.ERROR] = ConsoleColor.Red,
-            [LogLevel.FATAL] = ConsoleColor.DarkRed,
-            [LogLevel.DONE] = ConsoleColor.Green,
+            ["None"] = (text: false, time: false),
+            ["Message"] = (text: true, time: false),
+            ["MessageAndTime"] = (text: true, time: true)
         };
 
-        // Write log in console and only level is colored
-        internal static void ConsoleWriteLog(LogLevel logLevel, string message)
+        // Log color map
+        private static readonly Dictionary<LogLevel, ConsoleColor> LogLevelColorMap = new()
+        {
+            [LogLevel.Trace] = ConsoleColor.DarkGray,
+            [LogLevel.Debug] = ConsoleColor.Gray,
+            [LogLevel.Info] = ConsoleColor.DarkCyan,
+            [LogLevel.Warn] = ConsoleColor.DarkYellow,
+            [LogLevel.Error] = ConsoleColor.Red,
+            [LogLevel.Fatal] = ConsoleColor.DarkRed,
+            [LogLevel.Done] = ConsoleColor.Green,
+        };
+        
+        // Get time stamp
+        private static string GetTimestamp(string format, bool millisecond)
+        {
+            string logFormat = LogTimeFormatMap[format];
+            if (millisecond) logFormat += ".fff";
+            return DateTime.Now.ToString(logFormat);
+        }
+
+        // Write log in console
+        internal static void WriteConsoleLog(LogLevel level, string message)
         {
             Console.Write("[");
-            Console.ForegroundColor = LogColorMap[logLevel];
-            Console.Write(logLevel);
+            Console.ForegroundColor = LogLevelColorMap[level];
+            Console.Write(level);
             Console.ResetColor();
             Console.WriteLine($"] - {message}");
         }
 
-        internal static void WriteLog(string message, LogLevel logLevel, LogSetting logSetting, bool print, bool printTime)
+
+
+        internal static void WriteLog(LogLevel level, string message, LogSetting setting, bool print, bool printTime)
         {
             // Compare the two levels and return
-            if (logLevel < logSetting.LogMinLevel) return;
+            if (level < setting.LogMinLevel) return;
 
-            // Definition logSetting
-            string logPath = logSetting.LogPath;
-            string logFormat = logSetting.LogFormat;
-            string consoleOutput = logSetting.ConsoleOutput;
-            bool useMillisecond = logSetting.UseMillisecond;
+            // Scompose log setting
+            string logPath = setting.LogPath;
+            string logFormat = setting.LogFormat;
+            string consoleOutput = setting.ConsoleOutput;
+            bool millisecond = setting.Millisecond;
 
-            // Define log format
-            string logTimeFormat = LogTimeFormat[logFormat];
-            if (useMillisecond) logTimeFormat = logTimeFormat + ".fff";
-
-            // Get time now
-            string timeStamp = DateTime.Now.ToString(logTimeFormat);
+            // Get time stamp
+            string timeStamp = GetTimestamp(logFormat, millisecond);
 
             // Define console output
-            var consoleConfig = LogConsoleOutput[consoleOutput];
-            bool printMsg = consoleConfig.text || print;
-            bool printMsgTime = consoleConfig.time || printTime;
+            var (text, time) = ConsoleOutputMap[consoleOutput];
+            bool printMsg = text || print;
+            bool printMsgTime = time || printTime;
 
             if (printMsg)
             {
                 if (printMsgTime) Console.Write($"[{timeStamp}] ");
-                ConsoleWriteLog(logLevel, message);
+                WriteConsoleLog(level, message);
             }
 
-
-
             // Compose final log line
-            string logLine = $"[{timeStamp}] [{logLevel}] - {message}";
+            string logLine = $"[{timeStamp}] [{level}] - {message}";
 
             // Ensure log file and write with share
             FileSystemHelper.NewFile(logPath);
@@ -110,7 +116,9 @@ namespace NoveLib.Helpers
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error while writing to log file: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Error.WriteLine($"[Logger] Error writing to file: {ex.Message}");
+                Console.ResetColor();
             }
         }
     }
