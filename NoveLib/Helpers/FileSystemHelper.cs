@@ -22,10 +22,10 @@ namespace NoveLib.Helpers
         {
             // Create directory if is a path
             string directory = Path.GetDirectoryName(path);
-            if (!string.IsNullOrWhiteSpace(directory)) { NewDir(directory); }
+            if (!string.IsNullOrWhiteSpace(directory)) NewDir(directory);
 
             // Create new file
-            if (!File.Exists(path)) { File.Create(path).Dispose(); }
+            if (!File.Exists(path)) File.Create(path).Dispose();
         }
     }
 }

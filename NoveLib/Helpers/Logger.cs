@@ -2,11 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Management.Automation;
-using System.Reflection.Emit;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NoveLib.Helpers
 {
@@ -40,6 +37,7 @@ namespace NoveLib.Helpers
             [LogLevel.Fatal] = ConsoleColor.DarkRed,
             [LogLevel.Done] = ConsoleColor.Green,
         };
+
         private static string GetTimestamp(string format, bool millisecond)
         {
             string logFormat = LogTimeFormatMap[format];
@@ -58,28 +56,41 @@ namespace NoveLib.Helpers
 
         internal static void WriteLog(LogLevel level, string message, LogSetting setting, bool print, bool printTime)
         {
+            // Log guard
             if (level < setting.LogMinLevel) return;
 
+            // Scompose setting
             string logPath = setting.LogPath;
             string logFormat = setting.LogFormat;
             string consoleOutput = setting.ConsoleOutput;
             bool millisecond = setting.Millisecond;
 
+            // Get timestamp
             string timeStamp = GetTimestamp(logFormat, millisecond);
 
+            // Console print
             var (text, time) = ConsoleOutputMap[consoleOutput];
             bool printMsg = text || print;
-            bool printMsgTime = time || printTime;
-
             if (printMsg)
             {
+                bool printMsgTime = time || printTime;
                 if (printMsgTime) Console.Write($"[{timeStamp}] ");
                 WriteConsoleLog(level, message);
             }
+            
+            // Construct log line
+            StringBuilder sb = new StringBuilder();
+            string logLine = sb
+                .Append('[')
+                .Append(timeStamp)
+                .Append("] [")
+                .Append(level)
+                .Append("] - ")
+                .Append(message)
+                .ToString();
 
-            string logLine = $"[{timeStamp}] [{level}] - {message}";
-
-            FileSystemHelper.NewFile(logPath);
+            // Create write on log file
+            if (!File.Exists(logPath)) FileSystemHelper.NewFile(logPath);
             try
             {
                 using FileStream fs = new(logPath, FileMode.Append, FileAccess.Write, FileShare.Read);

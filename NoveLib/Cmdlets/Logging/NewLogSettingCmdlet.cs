@@ -1,4 +1,4 @@
-﻿using NoveLib.Models;
+﻿/* using NoveLib.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -111,7 +111,7 @@ namespace NoveLib.cmdlet.logging
             // # =================================[ Return NoveLib.LogSetting ]================================== #
 
             // Return LogSetting
-            return new LogSetting(filePath, logMinLevel, LogFormat, ConsoleOutput, UseMillisecond);
+            //return new LogSetting(filePath, LogMinLevel, LogFormat, ConsoleOutput, UseMillisecond);
         }
     }
-}
+} */
