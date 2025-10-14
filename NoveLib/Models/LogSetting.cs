@@ -7,11 +7,11 @@ namespace NoveLib.Models
     {
         public string LogPath { get; set; }
         public LogLevel LogMinLevel { get; set; }
-        public string LogFormat { get; set; }
-        public string ConsoleOutput { get; set; }
+        public LogFormat LogFormat { get; set; }
+        public LogConsole ConsoleOutput { get; set; }
         public bool Millisecond { get; set; }
 
-        public LogSetting(string logPath, LogLevel logMinLevel, string logFormat, string consoleOutput, bool millisecond)
+        public LogSetting(string logPath, LogLevel logMinLevel, LogFormat logFormat, LogConsole consoleOutput, bool millisecond)
         {
             LogPath = logPath;
             LogMinLevel = logMinLevel;

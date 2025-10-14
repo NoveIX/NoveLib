@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 
 namespace NoveLib.Helpers
@@ -12,22 +11,36 @@ namespace NoveLib.Helpers
         Trace, Debug, Info, Warn, Error, Fatal, Done
     }
 
+    public enum LogFormat
+    {
+        Time, Datetime
+    }
+
+    public enum LogDate
+    {
+       None, Date, Datetime
+    }
+
+    public enum LogConsole
+    {
+        None, Message, Timestamp
+    }
+
     public static class Logger
     {
-        private static readonly Dictionary<string, string> LogTimeFormatMap = new()
+        // Dictionary
+        private static readonly Dictionary<LogLevel, string> LogLevelMap = new()
         {
-            ["Time"] = "HH:mm:ss",
-            ["Datetime"] = "yyyy-MM-dd HH:mm:ss"
+            [LogLevel.Trace] = "TRACE",
+            [LogLevel.Debug] = "DEBUG",
+            [LogLevel.Info] = "INFO",
+            [LogLevel.Warn] = "WARN",
+            [LogLevel.Error] = "ERROR",
+            [LogLevel.Fatal] = "FATAL",
+            [LogLevel.Done] = "DONE"
         };
 
-        private static readonly Dictionary<string, (bool text, bool time)> ConsoleOutputMap = new()
-        {
-            ["None"] = (false, false),
-            ["Message"] = (true, false),
-            ["MessageAndTime"] = (true, true)
-        };
-
-        private static readonly Dictionary<LogLevel, ConsoleColor> LogLevelColorMap = new()
+        private static readonly Dictionary<LogLevel, ConsoleColor> LogColorMap = new()
         {
             [LogLevel.Trace] = ConsoleColor.DarkGray,
             [LogLevel.Debug] = ConsoleColor.Gray,
@@ -38,62 +51,60 @@ namespace NoveLib.Helpers
             [LogLevel.Done] = ConsoleColor.Green,
         };
 
-        private static string GetTimestamp(string format, bool millisecond)
+        private static readonly Dictionary<LogFormat, string> LogFormatMap = new()
         {
-            string logFormat = LogTimeFormatMap[format];
-            if (millisecond) logFormat += ".fff";
+            [LogFormat.Time] = "HH:mm:ss",
+            [LogFormat.Datetime] = "yyyy-MM-dd HH:mm:ss"
+        };
+
+        private static readonly Dictionary<LogConsole, (bool text, bool time)> LogConsoleMap = new()
+        {
+            [LogConsole.None] = (false, false),
+            [LogConsole.Message] = (true, false),
+            [LogConsole.Timestamp] = (true, true)
+        };
+
+        // Function
+        private static string GetTimestamp(LogFormat format, bool millisecond)
+        {
+            string logFormat = LogFormatMap[format] + (millisecond ? ".fff" : "");
             return DateTime.Now.ToString(logFormat);
         }
 
-        internal static void WriteConsoleLog(LogLevel level, string message)
+        internal static void WriteLogConsole(LogLevel level, string message)
         {
             Console.Write("[");
-            Console.ForegroundColor = LogLevelColorMap[level];
-            Console.Write(level);
+            Console.ForegroundColor = LogColorMap[level];
+            Console.Write(level.ToString().ToUpperInvariant());
             Console.ResetColor();
             Console.WriteLine($"] - {message}");
         }
 
+        // Logger
         internal static void WriteLog(LogLevel level, string message, LogSetting setting, bool print, bool printTime)
         {
             // Log guard
             if (level < setting.LogMinLevel) return;
 
-            // Scompose setting
-            string logPath = setting.LogPath;
-            string logFormat = setting.LogFormat;
-            string consoleOutput = setting.ConsoleOutput;
-            bool millisecond = setting.Millisecond;
-
             // Get timestamp
-            string timeStamp = GetTimestamp(logFormat, millisecond);
+            string timeStamp = GetTimestamp(setting.LogFormat, setting.Millisecond);
 
             // Console print
-            var (text, time) = ConsoleOutputMap[consoleOutput];
-            bool printMsg = text || print;
-            if (printMsg)
+            var (text, time) = LogConsoleMap[setting.ConsoleOutput];
+            if (text || print)
             {
-                bool printMsgTime = time || printTime;
-                if (printMsgTime) Console.Write($"[{timeStamp}] ");
-                WriteConsoleLog(level, message);
+                if (time || printTime) Console.Write($"[{timeStamp}] ");
+                WriteLogConsole(level, message);
             }
-            
+
             // Construct log line
-            StringBuilder sb = new StringBuilder();
-            string logLine = sb
-                .Append('[')
-                .Append(timeStamp)
-                .Append("] [")
-                .Append(level)
-                .Append("] - ")
-                .Append(message)
-                .ToString();
+            string logLine = $"[{timeStamp}] [{LogLevelMap[level]}] - {message}";
 
             // Create write on log file
-            if (!File.Exists(logPath)) FileSystemHelper.NewFile(logPath);
+            if (!File.Exists(setting.LogPath)) FileSystemHelper.NewFile(setting.LogPath);
             try
             {
-                using FileStream fs = new(logPath, FileMode.Append, FileAccess.Write, FileShare.Read);
+                using FileStream fs = new(setting.LogPath, FileMode.Append, FileAccess.Write, FileShare.Read);
                 using StreamWriter sw = new(fs, Encoding.UTF8);
                 sw.WriteLine(logLine);
                 sw.Flush();
@@ -104,6 +115,34 @@ namespace NoveLib.Helpers
                 Console.Error.WriteLine($"[Logger] Error writing to file: {ex.Message}");
                 Console.ResetColor();
             }
+        }
+
+        internal static LogSetting CreateLogSetting2(string logName, string logPath, LogLevel logMinLevel, LogFormat logFormat, bool millisecond, LogDate dateLogName, LogConsole consoleOutput, bool userLogName, bool userLogDir)
+        {
+            // Log path
+            if (string.IsNullOrWhiteSpace(logPath)) logPath = Path.Combine(Environment.CurrentDirectory, "logs");
+            else if (!Path.IsPathRooted(logPath)) logPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, logPath));
+
+            // Log name
+            logName = string.IsNullOrWhiteSpace(logName) ? "log" : Path.GetFileNameWithoutExtension(logName);
+
+            // Add username in log name
+            if (userLogName) logName += $"_{Environment.UserName}";
+
+            // Add Date in log name
+            if (dateLogName == LogDate.Date) logName += $"_{DateTime.Now:yyyy-MM-dd}";
+            else if (dateLogName == LogDate.Datetime) logName += $"_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+
+            // Extension
+            logName += ".log";
+
+            // Full path
+            logPath = userLogDir
+                ? Path.Combine(logPath, Environment.UserName, logName)
+                : Path.Combine(logPath, logName);
+
+            //Return
+            return new LogSetting(logPath, logMinLevel, logFormat, consoleOutput, millisecond);
         }
     }
 }
