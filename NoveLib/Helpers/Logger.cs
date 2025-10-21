@@ -6,29 +6,34 @@ using System.Text;
 
 namespace NoveLib.Helpers
 {
+    // Log Level Enum
     public enum LogLevel
     {
         Trace, Debug, Info, Warn, Error, Fatal, Done
     }
 
+    // Log Format Mode
     public enum LogFormat
     {
         Time, Datetime
     }
 
+    // Date in Log Name Mode
     public enum LogDate
     {
        None, Date, Datetime
     }
 
+    // Console Output Mode
     public enum LogConsole
     {
         None, Message, Timestamp
     }
 
+    // Logger Helper
     public static class Logger
     {
-        // Dictionary
+        //Log level mapping
         private static readonly Dictionary<LogLevel, string> LogLevelMap = new()
         {
             [LogLevel.Trace] = "TRACE",
@@ -40,6 +45,7 @@ namespace NoveLib.Helpers
             [LogLevel.Done] = "DONE"
         };
 
+        // Log level color mapping
         private static readonly Dictionary<LogLevel, ConsoleColor> LogColorMap = new()
         {
             [LogLevel.Trace] = ConsoleColor.DarkGray,
@@ -51,12 +57,14 @@ namespace NoveLib.Helpers
             [LogLevel.Done] = ConsoleColor.Green,
         };
 
+        // Log format mapping
         private static readonly Dictionary<LogFormat, string> LogFormatMap = new()
         {
             [LogFormat.Time] = "HH:mm:ss",
             [LogFormat.Datetime] = "yyyy-MM-dd HH:mm:ss"
         };
 
+        // Log console output mapping
         private static readonly Dictionary<LogConsole, (bool text, bool time)> LogConsoleMap = new()
         {
             [LogConsole.None] = (false, false),
@@ -64,13 +72,14 @@ namespace NoveLib.Helpers
             [LogConsole.Timestamp] = (true, true)
         };
 
-        // Function
+        // Get timestamp
         private static string GetTimestamp(LogFormat format, bool millisecond)
         {
             string logFormat = LogFormatMap[format] + (millisecond ? ".fff" : "");
             return DateTime.Now.ToString(logFormat);
         }
 
+        // Write log to console
         internal static void WriteLogConsole(LogLevel level, string message)
         {
             Console.Write("[");
@@ -83,25 +92,28 @@ namespace NoveLib.Helpers
         // Logger
         internal static void WriteLog(LogLevel level, string message, LogSetting setting, bool print, bool printTime)
         {
-            // Log guard
+            // Check log level
             if (level < setting.LogMinLevel) return;
 
             // Get timestamp
             string timeStamp = GetTimestamp(setting.LogFormat, setting.Millisecond);
 
-            // Console print
+            // Print to console
             var (text, time) = LogConsoleMap[setting.ConsoleOutput];
             if (text || print)
             {
+                // Print timestamp if needed
                 if (time || printTime) Console.Write($"[{timeStamp}] ");
                 WriteLogConsole(level, message);
             }
 
-            // Construct log line
+            // Create log line
             string logLine = $"[{timeStamp}] [{LogLevelMap[level]}] - {message}";
 
-            // Create write on log file
+            // Ensure directory exists
             if (!File.Exists(setting.LogPath)) FileSystemHelper.NewFile(setting.LogPath);
+
+            // Write to file
             try
             {
                 using FileStream fs = new(setting.LogPath, FileMode.Append, FileAccess.Write, FileShare.Read);
@@ -117,7 +129,7 @@ namespace NoveLib.Helpers
             }
         }
 
-        internal static LogSetting CreateLogSetting2(string logName, string logPath, LogLevel logMinLevel, LogFormat logFormat, bool millisecond, LogDate dateLogName, LogConsole consoleOutput, bool userLogName, bool userLogDir)
+        internal static LogSetting CreateLogSetting(string logName, string logPath, LogLevel logMinLevel, LogFormat logFormat, bool millisecond, LogDate dateLogName, LogConsole consoleOutput, bool userLogName, bool userLogDir)
         {
             // Log path
             if (string.IsNullOrWhiteSpace(logPath)) logPath = Path.Combine(Environment.CurrentDirectory, "logs");
@@ -126,22 +138,22 @@ namespace NoveLib.Helpers
             // Log name
             logName = string.IsNullOrWhiteSpace(logName) ? "log" : Path.GetFileNameWithoutExtension(logName);
 
-            // Add username in log name
+            // Add Username in log name
             if (userLogName) logName += $"_{Environment.UserName}";
 
-            // Add Date in log name
+            // Date in log name
             if (dateLogName == LogDate.Date) logName += $"_{DateTime.Now:yyyy-MM-dd}";
             else if (dateLogName == LogDate.Datetime) logName += $"_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
 
-            // Extension
+            // Add extension
             logName += ".log";
 
-            // Full path
+            // Add user subdir
             logPath = userLogDir
                 ? Path.Combine(logPath, Environment.UserName, logName)
                 : Path.Combine(logPath, logName);
 
-            //Return
+            // Create LogSetting
             return new LogSetting(logPath, logMinLevel, logFormat, consoleOutput, millisecond);
         }
     }
