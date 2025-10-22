@@ -22,8 +22,7 @@ namespace NoveLib.Cmdlets.logging
         public string Name { get; set; }
 
         [Parameter]
-        [Alias("Path")]
-        public string PathParam { get; set; }
+        public string Path { get; set; }
 
         [Parameter]
         [ValidateSet("TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "DONE")]
@@ -62,9 +61,8 @@ namespace NoveLib.Cmdlets.logging
             base.ProcessRecord();
 
             // Handle log path
-            string logPath = PathParam;
+            string logPath = Path;
             string basePath;
-
 
             if (string.IsNullOrWhiteSpace(logPath))
             {
@@ -143,13 +141,16 @@ namespace NoveLib.Cmdlets.logging
 
             LogSetting logSetting = LogSetting;
 
-
             logSetting ??= Global.DefaultLogSetting;
             if (logSetting == null)
             {
-                string sysMsg = $"DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
                 throw new InvalidOperationException(sysMsg);
             }
+
+            if (Print.IsPresent && PrintTime.IsPresent) Print = false;
+
+            Logger.WriteLog(LogLevel.Trace, Message, logSetting, Print, PrintTime);
         }
     }
 }
