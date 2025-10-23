@@ -1,6 +1,6 @@
 ﻿using NoveLib.Helpers;
 
-namespace NoveLib.Models
+namespace NoveLib.Source.Models
 {
     public class LogSetting(string logPath, LogLevel logMinLevel, LogFormat logFormat, LogConsole consoleOutput, bool millisecond)
     {
