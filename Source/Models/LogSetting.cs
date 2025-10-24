@@ -1,13 +1,12 @@
-﻿using NoveLib.Helpers;
+﻿using NoveLib.Source.Common.Enums;
 
 namespace NoveLib.Source.Models
 {
-    public class LogSetting(string logPath, LogLevel logMinLevel, LogFormat logFormat, LogConsole consoleOutput, bool millisecond)
+    public class LogSetting(string logFile, LogLevel logLevel, LogFormat logFormat, bool consolePrint)
     {
-        public string LogPath { get; set; } = logPath;
-        public LogLevel LogMinLevel { get; set; } = logMinLevel;
+        public string LogFile { get; set; } = logFile;
+        public LogLevel LogLevel { get; set; } = logLevel;
         public LogFormat LogFormat { get; set; } = logFormat;
-        public LogConsole ConsoleOutput { get; set; } = consoleOutput;
-        public bool Millisecond { get; set; } = millisecond;
+        public bool ConsolePrint { get; set; } = consolePrint;
     }
 }
