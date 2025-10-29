@@ -64,9 +64,7 @@ namespace NoveLib.Source.Core
             );
 
             // Print to console if enabled
-            if (logSetting.ConsolePrint || print)
-            {
-            }
+            if (logSetting.ConsolePrint || print) ConsoleHelper.ConsolePrintLogColor(logLevel, logLine);
 
             // Write to file
             FileHelper.AppendText(logSetting.LogFile, logLine, sourceContext);

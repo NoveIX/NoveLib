@@ -9,20 +9,31 @@ namespace NoveLib.Source.Common.Helpers
     {
         internal static void ConsolePrintLogColor(LogLevel logLevel, string logLine)
         {
-            int levelIndex = logLine.IndexOf(logLevel.ToString(), StringComparison.OrdinalIgnoreCase);
+            var originalColor = Console.ForegroundColor;
 
-            if (levelIndex >= 0)
+            string levelText = logLevel.ToString();
+            int index = logLine.IndexOf(levelText, StringComparison.OrdinalIgnoreCase);
+
+            if (index == -1)
             {
-                Console.Write(logLine[..levelIndex]);
-
-                // Cambia colore per il livello
-                Console.ForegroundColor = LogMapping.LogColorMap[level];
-                Console.Write(levelText);
-
-                // Ripristina colore e scrivi il resto
-                Console.ForegroundColor = originalColor;
-                Console.WriteLine(logLine[(levelIndex + levelText.Length)..]);
+                Console.WriteLine(logLine);
+                return;
             }
+
+            string before = logLine.Substring(0, index);
+            string levelPart = logLine.Substring(index, levelText.Length);
+            string after = logLine.Substring(index + levelText.Length);
+
+            Console.Write(before);
+
+            if (LogMapping.LogColorMap.TryGetValue(logLevel, out var color))
+                Console.ForegroundColor = color;
+
+            Console.Write(levelPart);
+
+            Console.ForegroundColor = originalColor;
+            Console.WriteLine(after);
         }
+
     }
 }

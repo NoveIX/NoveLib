@@ -113,4 +113,12 @@ namespace NoveLib.Source.Commands
             WriteObject(logSetting);
         }
     }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogTrace")]
+    public class  WriteLogCommand : PSCmdlet
+    {
+        
+    }
 }
