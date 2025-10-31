@@ -1,8 +1,9 @@
 ﻿using NoveLib.Source.Common.Enums;
 using NoveLib.Source.Core;
 using NoveLib.Source.Models;
+using System;
 using System.Linq;
-using System.Management.Automation; 
+using System.Management.Automation;
 
 namespace NoveLib.Source.Commands
 {
@@ -57,18 +58,18 @@ namespace NoveLib.Source.Commands
         {
             base.ProcessRecord();
 
-            //Handle log path
+            // Handle log path
             string logPath = Path;
             string basePath;
 
             if (string.IsNullOrWhiteSpace(logPath))
             {
-                //Take base path from script location or current location
+                // Take base path from script location or current location
                 basePath = !string.IsNullOrEmpty(MyInvocation.ScriptName)
                     ? System.IO.Path.GetDirectoryName(MyInvocation.ScriptName)
-                    :SessionState.Path.CurrentFileSystemLocation.Path;
+                    : SessionState.Path.CurrentFileSystemLocation.Path;
 
-                // Constuct default log path
+                // Construct default log path
                 logPath = System.IO.Path.Combine(basePath, "logs");
             }
             else if (!System.IO.Path.IsPathRooted(logPath))
@@ -117,8 +118,210 @@ namespace NoveLib.Source.Commands
     // ================================================================
 
     [Cmdlet(VerbsCommunications.Write, "LogTrace")]
-    public class  WriteLogCommand : PSCmdlet
+    public class WriteLogTraceCommand : PSCmdlet
     {
-        
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Trace, Message, logSetting, Print, null);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogDebug")]
+    public class WriteLogDebugCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Debug, Message, logSetting, Print, null);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogInfo")]
+    public class WriteLogInfoCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Info, Message, logSetting, Print, null);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogWarn")]
+    public class WriteLogWarnCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Warn, Message, logSetting, Print, null);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogError")]
+    public class WriteLogErrorCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Error, Message, logSetting, Print, null);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogFatal")]
+    public class WriteLogFatalCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Fatal, Message, logSetting, Print, null);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommunications.Write, "LogDone")]
+    public class WriteLogDoneCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0)]
+        public string Message { get; set; }
+
+        [Parameter(Position = 1)]
+        public SwitchParameter Print { get; set; }
+
+        [Parameter(Position = 2)]
+        public LogSetting LogSetting { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+
+            LogSetting logSetting = LogSetting;
+            logSetting ??= Global.DefaultLogSetting;
+            if (logSetting == null)
+            {
+                string sysMsg = "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault.";
+                throw new InvalidOperationException(sysMsg);
+            }
+
+            LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, null);
+        }
     }
 }

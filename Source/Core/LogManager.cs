@@ -43,7 +43,7 @@ namespace NoveLib.Source.Core
             if (logLevel < logSetting.LogLevel) return;
 
             // Get source context
-            if (string.IsNullOrWhiteSpace(sourceContext)) sourceContext = MethodBase.GetCurrentMethod().DeclaringType.Name;
+            if (string.IsNullOrWhiteSpace(sourceContext)) sourceContext = MethodBase.GetCurrentMethod().DeclaringType.FullName;
 
             // Get timestamp
             string timestamp = string.Empty;
@@ -55,18 +55,13 @@ namespace NoveLib.Source.Core
 
             // Compose log line
             string level = LogMapping.logLevelMap[logLevel];
-            string logLine = LogMapping.LogLineMap[logSetting.LogFormat]
-            (
-                timestamp,
-                level,
-                message,
-                sourceContext
-            );
+            string logLine = LogMapping.LogLineMap[logSetting.LogFormat] (timestamp, level, sourceContext, message);
 
             // Print to console if enabled
-            if (logSetting.ConsolePrint || print) ConsoleHelper.ConsolePrintLogColor(logLevel, logLine);
+            if (logSetting.ConsolePrint || print) Console.WriteLine(logLine); //ConsoleHelper.ConsolePrintLogColor(logLevel, logLine);
 
             // Write to file
+            Directory.CreateDirectory(Path.GetDirectoryName(logSetting.LogFile)!);
             FileHelper.AppendText(logSetting.LogFile, logLine, sourceContext);
         }
     }
