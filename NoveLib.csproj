@@ -14,7 +14,7 @@
 
 		<!-- Separate output for frameworks -->
 		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
-		<OutputPath>bin\$(Configuration)\$(TargetFramework)\</OutputPath>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
 	</PropertyGroup>
 
 	<!-- Custom output filename for each framework -->

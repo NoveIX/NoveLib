@@ -1,21 +1,15 @@
-# =========================[ MyModule.psm1 ]========================= #
+# =========================[ NoveLib.psm1 ]========================== #
 
 $moduleRoot = Split-Path -Parent $PSCommandPath
 
 # Seleziona il target .NET in base all'ambiente
-if ($PSEdition -eq 'Core') {
-    $assemblyPath = Join-Path $moduleRoot 'bin/net8.0/MyModule.dll'
-} else {
-    $assemblyPath = Join-Path $moduleRoot 'bin/net48/MyModule.dll'
-}
+
+if ($PSEdition -eq 'Core') { $dllPath = Join-Path $moduleRoot 'bin/Release/net8.0/NoveLib.net8.0.dll' }
+else { $dllPath = Join-Path $moduleRoot 'bin/Release/net48/NoveLib.net48.dll' }
 
 # Carica la DLL se esiste
-if (Test-Path $assemblyPath) {
-    Write-Verbose "Loading MyModule assembly from $assemblyPath"
-    Import-Module $assemblyPath -PassThru | Out-Null
-} else {
-    throw "Assembly non trovato: $assemblyPath"
-}
+if (Test-Path $dllPath) { Import-Module $dllPath -PassThru }
+else { throw "Assembly non trovato: $dllPath" }
 
 # (Facoltativo) Importa script helper, funzioni o inizializzazioni
 # . "$moduleRoot\Private\Init.ps1"
