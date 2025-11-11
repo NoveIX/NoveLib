@@ -32,16 +32,18 @@ namespace NoveLib.Source.Common.Mappings
             //[LogFormat.Simple] = "",
             [LogFormat.Detailed] = "yyyy-MM-dd HH:mm:ss.fff",
             [LogFormat.Compact] = "HH:mm:ss",
-            [LogFormat.ISO8601] = "yyyy-MM-ddTHH:mm:ss.fffzzz"
+            [LogFormat.ISO8601] = "yyyy-MM-ddTHH:mm:ss.fffzzz",
+            [LogFormat.Verbose] = "yyyy-MM-dd HH:mm:ss.fff zzz"
         };
 
-        internal static readonly Dictionary<LogFormat, Func<string, string, string, string, string>> LogLineMap = new()
+        internal static readonly Dictionary<LogFormat, Func<string, string, string, string, string, int, string>> LogLineMap = new()
         {
-            [LogFormat.Default] = (timestamp, level, _, message) => $"[{timestamp}] [{level}]: {message}",
-            [LogFormat.Simple] = (_, level, _, message) => $"[{level}]: {message}",
-            [LogFormat.Detailed] = (timestamp, level, contex, message) => $"[{timestamp}] [{level}] [{contex}]: {message}",
-            [LogFormat.Compact] = (timestamp, level, _, message) => $"{timestamp} {level}: {message}",
-            [LogFormat.ISO8601] = (timestamp, level, contex, message) => $"[{timestamp}] [{level}] [{contex}]: {message}"
+            [LogFormat.Default] = (timestamp, level, _, message, _, _) => $"[{timestamp}] [{level}]: {message}",
+            [LogFormat.Simple] = (_, level, _, message, _, _) => $"[{level}]: {message}",
+            [LogFormat.Detailed] = (timestamp, level, context, message, _, _) => $"[{timestamp}] [{level}] [{context}]: {message}",
+            [LogFormat.Compact] = (timestamp, level, _, message, _, _) => $"{timestamp} {level}: {message}",
+            [LogFormat.ISO8601] = (timestamp, level, context, message, _, _) => $"[{timestamp}] [{level}] [{context}]: {message}",
+            [LogFormat.Verbose] = (timestamp, level, context, message, file, line) => $"[{timestamp}] [{level}] [{context}] [{file}:{line}]: {message}"
         };
 
         internal static readonly Dictionary<LogLevel, ConsoleColor> LogColorMap = new()

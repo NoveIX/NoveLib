@@ -5,5 +5,6 @@ namespace NoveLib.Source.Core
     internal class Global
     {
         internal static LogSetting DefaultLogSetting;
+        internal static string DefaultCipherKey;
     }
 }

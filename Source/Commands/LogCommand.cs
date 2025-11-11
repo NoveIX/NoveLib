@@ -38,8 +38,8 @@ namespace NoveLib.Source.Commands
         protected override void ProcessRecord()
         {
             // Handle log path
-            string logPath = FSHelper.ResolvePathPS(Path, "logs", this);
-            string logName = FSHelper.ResolveFilePS(Name, "log", this);
+            string logPath = FileSystemHelper.ResolvePathPS(Path, "logs", this);
+            string logName = FileSystemHelper.ResolveFilePS(Name, "log", this);
 
             // Get other parameters
             LogLevel logLevel = LogLevel;
@@ -83,24 +83,24 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Trace, Message, logSetting, Print, func);
+            LogManager.WriteLog(LogLevel.Trace, Message, logSetting, Print, func, file, line);
         }
     }
 
     // ================================================================
 
-/*     [Cmdlet(VerbsCommunications.Write, "LogDebug")]
+     [Cmdlet(VerbsCommunications.Write, "LogDebug")]
     public class WriteLogDebugCommand : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
@@ -122,18 +122,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Debug, Message, logSetting, Print, func);
+            LogManager.WriteLog(LogLevel.Debug, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -161,18 +161,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Info, Message, logSetting, Print, func);
+            LogManager.WriteLog(LogLevel.Info, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -200,17 +200,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
-            LogManager.WriteLog(LogLevel.Warn, Message, logSetting, Print, func);
+
+            LogManager.WriteLog(LogLevel.Warn, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -238,18 +239,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Error, Message, logSetting, Print, func);
+            LogManager.WriteLog(LogLevel.Error, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -279,18 +280,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Fatal, Message, logSetting, Print, func);
+            LogManager.WriteLog(LogLevel.Fatal, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -320,18 +321,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            string psFile = null;
-            int psLine = 0;
+            string file = null;
+            int line = 0;
             string func = null;
 
             if (logSetting.LogFormat == LogFormat.Verbose)
             {
-                psFile = Path.GetFileName(MyInvocation.ScriptName);
-                psLine = MyInvocation.ScriptLineNumber;
+                file = Path.GetFileName(MyInvocation.ScriptName);
+                line = MyInvocation.ScriptLineNumber;
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, func);
+            LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, func, file, line);
         }
-    }*/
+    }
 }

@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Reflection;
+using System.Text;
 
 namespace NoveLib.Source.Common.Helpers
 {
-    internal class FSHelper
+    internal class FileSystemHelper
     {
         internal static string ResolvePathPS(string path, string dir, PSCmdlet cmdlet)
         {
@@ -47,6 +50,21 @@ namespace NoveLib.Source.Common.Helpers
             file = string.Concat(file.Select(ch => Path.GetInvalidFileNameChars().Contains(ch) ? '_' : ch));
 
             return file;
+        }
+
+        internal static void AppendText(string path, string text)
+        {
+            try
+            {
+                using StreamWriter sw = new(path, append: true, encoding: Encoding.UTF8);
+                sw.WriteLine(text);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Error.WriteLine($"[{MethodBase.GetCurrentMethod().DeclaringType.FullName}] Error writing to file: {ex.Message}");
+                Console.ResetColor();
+            }
         }
     }
 }
