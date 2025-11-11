@@ -100,7 +100,7 @@ namespace NoveLib.Source.Commands
 
     // ================================================================
 
-    [Cmdlet(VerbsCommunications.Write, "LogDebug")]
+/*     [Cmdlet(VerbsCommunications.Write, "LogDebug")]
     public class WriteLogDebugCommand : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
@@ -333,5 +333,5 @@ namespace NoveLib.Source.Commands
 
             LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, func);
         }
-    }
+    }*/
 }

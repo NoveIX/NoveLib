@@ -37,13 +37,13 @@ namespace NoveLib.Source.Core
         // ================================================================
 
         // Write log message to file
-        internal static void WriteLog(LogLevel logLevel, string message, LogSetting logSetting, bool print, string sourceContext)
+        internal static void WriteLog(LogLevel logLevel, string message, LogSetting logSetting, bool print, string context)
         {
             // Check log level
             if (logLevel < logSetting.LogLevel) return;
 
             // Get source context
-            if (string.IsNullOrWhiteSpace(sourceContext)) sourceContext = MethodBase.GetCurrentMethod().DeclaringType.FullName;
+            //if (string.IsNullOrWhiteSpace(context)) context = MethodBase.GetCurrentMethod().DeclaringType.FullName;
 
             // Get timestamp
             string timestamp = string.Empty;
@@ -55,14 +55,14 @@ namespace NoveLib.Source.Core
 
             // Compose log line
             string level = LogMapping.logLevelMap[logLevel];
-            string logLine = LogMapping.LogLineMap[logSetting.LogFormat] (timestamp, level, sourceContext, message);
+            string logLine = LogMapping.LogLineMap[logSetting.LogFormat] (timestamp, level, context, message);
 
             // Print to console if enabled
             if (logSetting.ConsolePrint || print) Console.WriteLine(logLine); //ConsoleHelper.ConsolePrintLogColor(logLevel, logLine);
 
             // Write to file
             Directory.CreateDirectory(Path.GetDirectoryName(logSetting.LogFile)!);
-            FileHelper.AppendText(logSetting.LogFile, logLine, sourceContext);
+            FileHelper.AppendText(logSetting.LogFile, logLine, context);
         }
     }
 }
