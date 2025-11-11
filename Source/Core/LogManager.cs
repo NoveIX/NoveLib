@@ -12,7 +12,7 @@ namespace NoveLib.Source.Core
     internal class LogManager
     {
         // Create LogSetting object based on parameters
-        internal static LogSetting CreateLogSetting(string logName, string logPath, LogLevel logLevel, LogFormat logFormat, LogDate logDate, bool consolePrint)
+        internal static LogSetting CreateLogSetting(string logName, string logPath, LogLevel logLevel, LogFormat logFormat, LogDate logDate, bool consolePrint, bool setDefault)
         {
             // logPath normalized in Cmdlet
             // logName normalized in Cmdlet
@@ -31,7 +31,7 @@ namespace NoveLib.Source.Core
             string logFile = Path.Combine(logPath, logName);
 
             // Create LogSetting object
-            return new LogSetting(logFile, logLevel, logFormat, consolePrint);
+            return new LogSetting(logFile, logLevel, logFormat, consolePrint, setDefault);
         }
 
         // ================================================================
