@@ -1,6 +1,6 @@
 # File: NoveLib\Public\Utility\Invoke-DecryptSecureString.ps1
 
-function Invoke-DecryptSecureString {
+function Unprotect-SecureString {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]

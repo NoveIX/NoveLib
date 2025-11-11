@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace NoveLib.Source.Commands
 {
-    [Cmdlet(VerbsCommon.Find, "NotAsciiCharacter")]
-    public class FindNotAsciiCharacter : PSCmdlet
+    [Cmdlet(VerbsCommon.Find, "NonAsciiCharacter")]
+    public class FindNonAsciiCharacter : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
         public string Path { get; set; }

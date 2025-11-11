@@ -2,13 +2,13 @@
 {
     public enum LogLevel
     {
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Fatal,
-        Done
+        Trace,  // Maximum details
+        Debug,  // Debug info
+        Info,   // General information
+        Warn,   // Warnings
+        Error,  // Errors
+        Fatal,  // Critical errors
+        Done    // Successfully completed
     }
 
     public enum LogFormat
@@ -17,7 +17,8 @@
         Simple,     // [Level]: Message
         Detailed,   // [yyyy-MM-dd HH:mm:ss.fff] [Level] [SourceContext]: Message
         Compact,    // HH:mm:ss Level: Message
-        ISO8601     // [yyyy-MM-ddTHH:mm:ss.fffzzz] [Level] [SourceContext]: Message (UTC)
+        ISO8601,     // [yyyy-MM-ddTHH:mm:ss.fffzzz] [Level] [SourceContext]: Message (UTC)
+        Verbose     // [yyyy-MM-ddTHH:mm:ss.fffzzz] [Level] [SourceContext] [File:Line]: Message (UTC)
     }
 
     public enum LogDate

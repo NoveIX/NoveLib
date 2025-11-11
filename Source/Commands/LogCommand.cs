@@ -1,8 +1,9 @@
 ﻿using NoveLib.Source.Common.Enums;
+using NoveLib.Source.Common.Helpers;
 using NoveLib.Source.Core;
 using NoveLib.Source.Models;
 using System;
-using System.Linq;
+using System.IO;
 using System.Management.Automation;
 
 namespace NoveLib.Source.Commands
@@ -17,35 +18,15 @@ namespace NoveLib.Source.Commands
         public string Path { get; set; }
 
         [Parameter(Position = 2)]
-        [ValidateSet(
-            "Trace", // Maximum details
-            "Debug", // Debug info
-            "Info",  // General information
-            "Warn",  // Warnings
-            "Error", // Errors
-            "Fatal", // Critical errors
-            "Done"   // Successfully completed
-        )]
+        [ValidateSet("Trace", "Debug", "Info", "Warn", "Error", "Fatal", "Done")]
         public LogLevel LogLevel { get; set; } = LogLevel.Info;
 
         [Parameter(Position = 3)]
-        [ValidateSet(
-            "Default",  // [yyyy-MM-dd HH:mm:ss] [Level]: Message
-            "Simple",   // [Level]: Message
-            "Detailed", // [yyyy-MM-dd HH:mm:ss.fff] [Level] [SourceContext]: Message
-            "Compact",  // HH:mm:ss Level: Message
-            "ISO8601"   // [yyyy-MM-ddTHH:mm:ss.fffZ] [Level] [SourceContext]: Message (UTC)
-        )]
+        [ValidateSet("Default", "Simple", "Detailed", "Compact", "ISO8601", "Verbose")]
         public LogFormat LogFormat { get; set; } = LogFormat.Default;
 
         [Parameter(Position = 4)]
-        [ValidateSet(
-            "None",             // logname.log
-            "DateCompact",      // logname_20251024.log
-            "DateHyphen",       // logname_2025-10-24.log
-            "DateTimeCompact",  // logname_20251024_143000.log
-            "DateTimeHyphen"    // logname_2025-10-24_14-30-00.log
-            )]
+        [ValidateSet("None", "DateCompact", "DateHyphen", "DateTimeCompact", "DateTimeHyphen")]
         public LogDate LogDate { get; set; } = LogDate.None;
 
         [Parameter(Position = 5)]
@@ -56,59 +37,22 @@ namespace NoveLib.Source.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             // Handle log path
-            string logPath = Path;
-            string basePath;
-
-            if (string.IsNullOrWhiteSpace(logPath))
-            {
-                // Take base path from script location or current location
-                basePath = !string.IsNullOrEmpty(MyInvocation.ScriptName)
-                    ? System.IO.Path.GetDirectoryName(MyInvocation.ScriptName)
-                    : SessionState.Path.CurrentFileSystemLocation.Path;
-
-                // Construct default log path
-                logPath = System.IO.Path.Combine(basePath, "logs");
-            }
-            else if (!System.IO.Path.IsPathRooted(logPath))
-            {
-                // Convert to absolute path if relative
-                logPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(
-                    SessionState.Path.CurrentFileSystemLocation.Path, logPath));
-            }
-
-            // Handle log name
-            string logName = Name;
-
-            if (string.IsNullOrWhiteSpace(logName))
-            {
-                // Get log name from script name or default
-                logName = !string.IsNullOrWhiteSpace(MyInvocation.ScriptName)
-                    ? System.IO.Path.GetFileNameWithoutExtension(MyInvocation.ScriptName)
-                    : "log"; // Default log name
-            }
-            else
-            {
-                // Remove extension if provided
-                logName = System.IO.Path.GetFileNameWithoutExtension(logName);
-            }
-
-            // Sanitize log name
-            logName = string.Concat(logName.Select(ch => System.IO.Path.GetInvalidFileNameChars().Contains(ch) ? '_' : ch));
+            string logPath = FSHelper.ResolvePathPS(Path, "logs", this);
+            string logName = FSHelper.ResolveFilePS(Name, "log", this);
 
             // Get other parameters
             LogLevel logLevel = LogLevel;
             LogFormat logFormat = LogFormat;
             LogDate logDate = LogDate;
             bool consolePrint = ConsolePrint.IsPresent;
+            bool setDefault = SetDefault.IsPresent;
 
             // Create LogSetting object
-            LogSetting logSetting = LogManager.CreateLogSetting(logName, logPath, logLevel, logFormat, logDate, consolePrint);
+            LogSetting logSetting = LogManager.CreateLogSetting(logName, logPath, logLevel, logFormat, logDate, consolePrint, setDefault);
 
             // Set as default if specified
-            if (SetDefault.IsPresent) Global.DefaultLogSetting = logSetting;
+            if (setDefault) Global.DefaultLogSetting = logSetting;
 
             // Ouptput LogSetting object
             WriteObject(logSetting);
@@ -131,8 +75,6 @@ namespace NoveLib.Source.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             LogSetting logSetting = LogSetting;
             logSetting ??= Global.DefaultLogSetting;
             if (logSetting == null)
@@ -141,7 +83,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Trace, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+
+            LogManager.WriteLog(LogLevel.Trace, Message, logSetting, Print, func);
         }
     }
 
@@ -161,8 +114,6 @@ namespace NoveLib.Source.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             LogSetting logSetting = LogSetting;
             logSetting ??= Global.DefaultLogSetting;
             if (logSetting == null)
@@ -171,7 +122,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Debug, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+
+            LogManager.WriteLog(LogLevel.Debug, Message, logSetting, Print, func);
         }
     }
 
@@ -191,8 +153,6 @@ namespace NoveLib.Source.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             LogSetting logSetting = LogSetting;
             logSetting ??= Global.DefaultLogSetting;
             if (logSetting == null)
@@ -201,7 +161,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Info, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+
+            LogManager.WriteLog(LogLevel.Info, Message, logSetting, Print, func);
         }
     }
 
@@ -221,8 +192,6 @@ namespace NoveLib.Source.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             LogSetting logSetting = LogSetting;
             logSetting ??= Global.DefaultLogSetting;
             if (logSetting == null)
@@ -231,7 +200,17 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Warn, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+            LogManager.WriteLog(LogLevel.Warn, Message, logSetting, Print, func);
         }
     }
 
@@ -251,8 +230,6 @@ namespace NoveLib.Source.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             LogSetting logSetting = LogSetting;
             logSetting ??= Global.DefaultLogSetting;
             if (logSetting == null)
@@ -261,7 +238,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Error, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+
+            LogManager.WriteLog(LogLevel.Error, Message, logSetting, Print, func);
         }
     }
 
@@ -291,7 +279,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Fatal, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+
+            LogManager.WriteLog(LogLevel.Fatal, Message, logSetting, Print, func);
         }
     }
 
@@ -321,7 +320,18 @@ namespace NoveLib.Source.Commands
                 throw new InvalidOperationException(sysMsg);
             }
 
-            LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, null);
+            string psFile = null;
+            int psLine = 0;
+            string func = null;
+
+            if (logSetting.LogFormat == LogFormat.Verbose)
+            {
+                psFile = Path.GetFileName(MyInvocation.ScriptName);
+                psLine = MyInvocation.ScriptLineNumber;
+            }
+            if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
+
+            LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, func);
         }
     }
 }

@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Microsoft.PowerShell.Commands;
+using System;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 
 namespace NoveLib.Source.Commands
 {
     [Cmdlet(VerbsCommon.New, "CipherKey")]
-    public class NewCipherKeyCommand : PSCmdlet
+    internal class NewCipherKeyCommand : PSCmdlet
     {
         [Parameter(Position = 0)]
         public string Name { get; set; }
@@ -85,7 +88,7 @@ namespace NoveLib.Source.Commands
     // ================================================================
 
     [Cmdlet(VerbsLifecycle.Invoke, "EncryptText")]
-    public class EncryptTextCommand : PSCmdlet
+    internal class EncryptTextCommand : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
         public string KeyPath { get; set; }
@@ -146,5 +149,19 @@ namespace NoveLib.Source.Commands
             // Sanitize cipher text name
             textName = string.Concat(textName.Select(ch => System.IO.Path.GetInvalidFileNameChars().Contains(ch) ? '_' : ch));
         }
+    }
+
+    //================================================================
+
+    [Cmdlet(VerbsLifecycle.Invoke, "DecryptText")]
+    internal class DecryptTextCommand : PSCmdlet
+    { }
+
+    //================================================================
+
+    [Cmdlet(VerbsSecurity.Protect, "SecureString")]
+    [OutputType(typeof(string))]
+    internal class UnprotectSecureStringCommand : PSCmdlet
+    {
     }
 }
