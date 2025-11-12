@@ -41,7 +41,7 @@ namespace NoveLib.Source.Core
             string logLine = LogMapping.LogLineMap[logSetting.LogFormat] (timestamp, LogMapping.logLevelMap[logLevel], context, message, file, line);
 
             // Print to console if enabled
-            if (logSetting.ConsolePrint || print) Console.WriteLine(logLine);
+            if (logSetting.ConsolePrint || print) ConsoleHelper.LogConsolePrint(logLevel, logLine);
 
             // Write to file
             Directory.CreateDirectory(Path.GetDirectoryName(logSetting.LogFile)!);
