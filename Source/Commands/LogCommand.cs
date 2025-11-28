@@ -49,7 +49,7 @@ namespace NoveLib.Source.Commands
             bool setDefault = SetDefault.IsPresent;
 
             // Create LogSetting object
-            LogSetting logSetting = LogManager.CreateLogSetting(logName, logPath, logLevel, logFormat, logDate, consolePrint, setDefault);
+            LogSetting logSetting = LogCore.CreateLogSetting(logName, logPath, logLevel, logFormat, logDate, consolePrint, setDefault);
 
             // Set as default if specified
             if (setDefault) Global.DefaultLogSetting = logSetting;
@@ -94,7 +94,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Trace, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Trace, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -133,7 +133,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Debug, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Debug, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -172,7 +172,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Info, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Info, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -211,7 +211,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Warn, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Warn, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -250,7 +250,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Error, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Error, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -291,7 +291,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Fatal, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Fatal, Message, logSetting, Print, func, file, line);
         }
     }
 
@@ -332,7 +332,7 @@ namespace NoveLib.Source.Commands
             }
             if (logSetting.LogFormat is LogFormat.Detailed or LogFormat.ISO8601 or LogFormat.Verbose) func = MyInvocation.MyCommand.Name;
 
-            LogManager.WriteLog(LogLevel.Done, Message, logSetting, Print, func, file, line);
+            LogCore.WriteLog(LogLevel.Done, Message, logSetting, Print, func, file, line);
         }
     }
 }

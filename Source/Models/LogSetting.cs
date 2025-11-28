@@ -12,6 +12,7 @@ namespace NoveLib.Source.Models
     /// <param name="logLevel">The level min of logging.</param>
     /// <param name="logFormat">The format of the log entries.</param>
     /// <param name="consolePrint">Indicates whether to print logs to the console.</param>
+    /// <param name="setDefault">Indicates whether this log setting is the default setting.</param>
     public class LogSetting(string logFile, LogLevel logLevel, LogFormat logFormat, bool consolePrint, bool setDefault)
     {
         /// <summary>
@@ -30,7 +31,9 @@ namespace NoveLib.Source.Models
         /// Indicates whether to print logs to the console.
         /// </summary>
         public bool ConsolePrint { get; set; } = consolePrint;
-
+        /// <summary>
+        /// Gets or sets a value indicating whether this log setting is the default setting.
+        /// </summary>
         public bool Default {  get; set; } = setDefault;
     }
 }

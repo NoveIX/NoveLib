@@ -7,7 +7,7 @@ using System.IO;
 
 namespace NoveLib.Source.Core
 {
-    internal class LogManager
+    internal class LogCore
     {
         // Create LogSetting object based on parameters
         internal static LogSetting CreateLogSetting(string logName, string logPath, LogLevel logLevel, LogFormat logFormat, LogDate logDate, bool consolePrint, bool setDefault)
@@ -38,7 +38,7 @@ namespace NoveLib.Source.Core
             if (logSetting.LogFormat != LogFormat.Simple) timestamp = DateTime.Now.ToString(LogMapping.logFormatMap[logSetting.LogFormat]);
 
             // Compose log line
-            string logLine = LogMapping.LogLineMap[logSetting.LogFormat] (timestamp, LogMapping.logLevelMap[logLevel], context, message, file, line);
+            string logLine = LogMapping.LogLineMap[logSetting.LogFormat](timestamp, LogMapping.logLevelMap[logLevel], context, message, file, line);
 
             // Print to console if enabled
             if (logSetting.ConsolePrint || print) ConsoleHelper.LogConsolePrint(logLevel, logLine);
