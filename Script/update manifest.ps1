@@ -1,0 +1,1 @@
+Update-ModuleManifest -Path "..\Modules\NoveLib\NoveLib.psd1"
