@@ -1,50 +1,59 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Management.Automation;
 using System.Text;
 
 namespace NoveLib.Source.Commands
 {
     [Cmdlet(VerbsCommon.Find, "NonAsciiCharacter")]
-    public class FindNonAsciiCharacter : PSCmdlet
+    public class FindNonAsciiCharacterCommand : PSCmdlet
     {
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(
+            Mandatory = true,
+            ParameterSetName = "Path",
+            Position = 0)]
+        [ValidateNotNullOrEmpty]
         public string Path { get; set; }
+
+        [Parameter(
+            Mandatory = true,
+            ParameterSetName = "String",
+            ValueFromPipeline = true,
+            Position = 0)]
+        [ValidateNotNullOrEmpty]
+        public string InputString { get; set; }
 
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
 
-            string path = Path;
+            if (ParameterSetName == "Path")
+                ProcessFile(Path);
+            else
+                ProcessString(InputString);
+        }
 
-            // Validate path
-            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("The path cannot be empty.", path);
-            if (!File.Exists(path)) throw new FileNotFoundException("The specified file does not exist.", path);
+        private void ProcessFile(string path)
+        {
+            if (!File.Exists(path))
+                throw new FileNotFoundException("The specified file does not exist.", path);
 
-            //Read all line
             string[] lines = File.ReadAllLines(path, Encoding.UTF8);
-            int lineNumber = 0;
-            bool found = false;
+            for (int i = 0; i < lines.Length; i++)
+                DetectNonAscii(lines[i], i + 1);
+        }
 
-            foreach (string line in lines)
-            {
-                lineNumber++;
-                for (int i = 0; i < line.Length; i++)
-                {
-                    char c = line[i];
-                    if (c > 127) // Ascii Charater
-                    {
-                        Console.WriteLine($"Line: {lineNumber}, position: {i + 1} char: '{c}' code: {(int)c}");
-                        found = true;
-                    }
-                }
-            };
+        private void ProcessString(string input)
+        {
+            DetectNonAscii(input, 1);
+        }
 
-            if (!found)
+        private void DetectNonAscii(string text, int line)
+        {
+            for (int i = 0; i < text.Length; i++)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("No non-ASCII characters found.");
-                Console.ResetColor();
+                char c = text[i];
+                if (c > 127)
+                    WriteObject($"Line: {line}, position: {i + 1} char: '{c}' code: {(int)c}");
             }
         }
     }

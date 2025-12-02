@@ -19,21 +19,25 @@ namespace NoveLib.Source.Models
         /// Gets or sets the path to the log file.
         /// </summary>
         public string LogFile { get; set; } = logFile;
+
         /// <summary>
         /// Gets or sets the level min of logging.
         /// </summary>
         public LogLevel LogLevel { get; set; } = logLevel;
+
         /// <summary>
         /// Gets or sets the format of the log entries.
         /// </summary>
         public LogFormat LogFormat { get; set; } = logFormat;
+
         /// <summary>
         /// Indicates whether to print logs to the console.
         /// </summary>
         public bool ConsolePrint { get; set; } = consolePrint;
+
         /// <summary>
         /// Gets or sets a value indicating whether this log setting is the default setting.
         /// </summary>
-        public bool Default {  get; set; } = setDefault;
+        public bool Default { get; set; } = setDefault;
     }
 }

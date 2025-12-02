@@ -9,7 +9,7 @@ namespace NoveLib.Source.Core
         internal static IPAddress CidrToMaskIPv4(int cidr)
         {
             if (cidr is < 0 or > 32) throw new ArgumentOutOfRangeException(nameof(cidr), "CIDR IPv4 must be between 0 and 32");
-    
+
             byte[] mask = new byte[4];
 
             int fullBytes = cidr / 8;
@@ -38,7 +38,7 @@ namespace NoveLib.Source.Core
 
             // Partial byte
             if (remainingBits > 0) bytes[fullBytes] = (byte)(0xFF << (8 - remainingBits));
-            
+
             return new IPAddress(bytes);
         }
 
