@@ -7,18 +7,11 @@ namespace NoveLib.Commands
     [Cmdlet(VerbsCommon.Find, "NonAsciiCharacter")]
     public class FindNonAsciiCharacterCommand : PSCmdlet
     {
-        [Parameter(
-            Mandatory = true,
-            ParameterSetName = "Path",
-            Position = 0)]
+        [Parameter(Mandatory = true, ParameterSetName = "Path", Position = 0)]
         [ValidateNotNullOrEmpty]
         public string Path { get; set; }
 
-        [Parameter(
-            Mandatory = true,
-            ParameterSetName = "String",
-            ValueFromPipeline = true,
-            Position = 0)]
+        [Parameter(Mandatory = true, ParameterSetName = "String", Position = 0, ValueFromPipeline = true)]
         [ValidateNotNullOrEmpty]
         public string InputString { get; set; }
 
@@ -55,6 +48,23 @@ namespace NoveLib.Commands
                 if (c > 127)
                     WriteObject($"Line: {line}, position: {i + 1} char: '{c}' code: {(int)c}");
             }
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsData.Convert, "ByteToReadableString")]
+    public class ConvertByteToReadableStringCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
+        public long Bytes { get; set; }
+
+        [Parameter(Position = 1)]
+        public int DecimalPlaces { get; set; } = 2;
+
+        protected override void ProcessRecord()
+        {
+            
         }
     }
 
