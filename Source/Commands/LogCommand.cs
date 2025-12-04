@@ -86,7 +86,7 @@ namespace NoveLib.Source.Commands
         {
             // Handle log path and name
             string logPath = FileSystemHelper.ResolvePathPS(Path, "logs", this);
-            string logName = FileSystemHelper.ResolveFilePS(Name, "log", this);
+            string logName = FileSystemHelper.ResolveNamePS(Name, "log", this);
 
             // Get other parameters
             LogLevel logLevel = LogLevel;
@@ -103,6 +103,23 @@ namespace NoveLib.Source.Commands
 
             // Ouptput LogSetting object
             WriteObject(logSetting);
+        }
+    }
+
+    // ================================================================
+
+    [Cmdlet(VerbsCommon.Set, "DefaultLogSetting")]
+    public class SetDefaultLogSettingCommand : PSCmdlet
+    {
+        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
+        public LogSetting LogSetting { get; set; }
+        protected override void ProcessRecord()
+        {
+            // Set the default global log Setting
+            Global.DefaultLogSetting = LogSetting;
+
+            // Optional informational message -Verbose
+            WriteVerbose("Default log setting has been updated.");
         }
     }
 

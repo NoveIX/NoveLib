@@ -31,7 +31,9 @@ namespace NoveLib.Source.Common.Helpers
             return path;
         }
 
-        internal static string ResolveFilePS(string file, string name, PSCmdlet cmdlet)
+        // ================================================================
+
+        internal static string ResolveNamePS(string file, string name, PSCmdlet cmdlet)
         {
             string psFile = cmdlet.MyInvocation.ScriptName;
 
@@ -51,6 +53,8 @@ namespace NoveLib.Source.Common.Helpers
 
             return file;
         }
+
+        // ================================================================
 
         internal static void AppendText(string path, string text)
         {
