@@ -6,19 +6,12 @@ function Invoke-CipherDecrypt {
         [System.Object]$KeyPath,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Path')]
-        [System.Object]$FilePath,
-
-        [Parameter(Mandatory = $true, ParameterSetName = 'CipherObject', ValueFromPipeline = $true)]
-        [Cipher]$CipherObject
+        [System.Object]$FilePath
     )
 
     # ====================================================[ Validate parameter ]==================================================== #
 
-    if ($CipherObject) {
-        $KeyPath = $CipherObject.KeyPath
-        $FilePath = $CipherObject.FilePath
-    }
-    else {
+
         try {
             if ($KeyPath -is [System.IO.FileInfo]) { $KeyPath = $KeyPath.FullName }
             else { $KeyPath = (Resolve-Path -Path $KeyPath -ErrorAction Stop).Path }
@@ -36,7 +29,7 @@ function Invoke-CipherDecrypt {
             $sysMsg = "String file not found. $($_.Exception.Message)"
             throw [System.IO.FileNotFoundException]::new($sysMsg)
         }
-    }
+    
 
     # =====================================================[ Decript passoword ]==================================================== #
 
