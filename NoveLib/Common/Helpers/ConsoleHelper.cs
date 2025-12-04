@@ -1,8 +1,8 @@
-﻿using NoveLib.Source.Common.Enums;
-using NoveLib.Source.Common.Mappings;
+﻿using NoveLib.Common.Enums;
+using NoveLib.Common.Mappings;
 using System;
 
-namespace NoveLib.Source.Common.Helpers
+namespace NoveLib.Common.Helpers
 {
     internal class ConsoleHelper
     {

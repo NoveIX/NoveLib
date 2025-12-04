@@ -1,6 +1,6 @@
-﻿using NoveLib.Source.Models;
+﻿using NoveLib.Models;
 
-namespace NoveLib.Source.Core
+namespace NoveLib.Core
 {
     internal class Global
     {

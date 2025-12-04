@@ -1,12 +1,12 @@
-﻿using NoveLib.Source.Common.Enums;
-using NoveLib.Source.Common.Helpers;
-using NoveLib.Source.Core;
-using NoveLib.Source.Models;
+﻿using NoveLib.Common.Enums;
+using NoveLib.Common.Helpers;
+using NoveLib.Core;
+using NoveLib.Models;
 using System;
 using System.IO;
 using System.Management.Automation;
 
-namespace NoveLib.Source.Commands
+namespace NoveLib.Commands
 {
     /// <summary>
     /// Creates a new log setting configuration with the specified parameters and outputs the resulting LogSetting

@@ -2,7 +2,7 @@
 using System;
 using System.Net;
 
-namespace NoveLib.Source.Core
+namespace NoveLib.Core
 {
     internal class NetworkCore
     {

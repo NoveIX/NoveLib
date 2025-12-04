@@ -1,11 +1,11 @@
-﻿using NoveLib.Source.Common.Enums;
-using NoveLib.Source.Common.Helpers;
-using NoveLib.Source.Common.Mappings;
-using NoveLib.Source.Models;
+﻿using NoveLib.Common.Enums;
+using NoveLib.Common.Helpers;
+using NoveLib.Common.Mappings;
+using NoveLib.Models;
 using System;
 using System.IO;
 
-namespace NoveLib.Source.Core
+namespace NoveLib.Core
 {
     internal class LogCore
     {

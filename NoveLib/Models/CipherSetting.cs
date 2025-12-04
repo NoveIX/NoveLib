@@ -1,4 +1,4 @@
-﻿namespace NoveLib.Source.Models
+﻿namespace NoveLib.Models
 {
     /// <summary>
     /// Represents the configuration for an AES cipher operation, including key file path, encrypted text file path, and

@@ -1,6 +1,6 @@
-﻿using NoveLib.Source.Common.Enums;
+﻿using NoveLib.Common.Enums;
 
-namespace NoveLib.Source.Models
+namespace NoveLib.Models
 {
     /// <summary>
     /// Represents the settings for logging, including file path, log level, format, and console output option.

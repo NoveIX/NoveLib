@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NoveLib.Source.Core
+namespace NoveLib.Core
 {
     internal class CipherCore
     {

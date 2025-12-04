@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NoveLib.Source.Common.Mappings
+namespace NoveLib.Common.Mappings
 {
     internal class NetworkMapping
     {

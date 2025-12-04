@@ -1,8 +1,8 @@
-﻿using NoveLib.Source.Common.Enums;
+﻿using NoveLib.Common.Enums;
 using System;
 using System.Collections.Generic;
 
-namespace NoveLib.Source.Common.Mappings
+namespace NoveLib.Common.Mappings
 {
     internal class LogMapping
     {

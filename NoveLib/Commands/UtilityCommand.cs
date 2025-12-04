@@ -2,7 +2,7 @@
 using System.Management.Automation;
 using System.Text;
 
-namespace NoveLib.Source.Commands
+namespace NoveLib.Commands
 {
     [Cmdlet(VerbsCommon.Find, "NonAsciiCharacter")]
     public class FindNonAsciiCharacterCommand : PSCmdlet

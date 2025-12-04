@@ -1,4 +1,4 @@
-﻿namespace NoveLib.Source.Common.Enums
+﻿namespace NoveLib.Common.Enums
 {
     public enum LogLevel
     {

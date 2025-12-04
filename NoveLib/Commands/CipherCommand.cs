@@ -1,6 +1,6 @@
-﻿using NoveLib.Source.Common.Helpers;
-using NoveLib.Source.Core;
-using NoveLib.Source.Models;
+﻿using NoveLib.Common.Helpers;
+using NoveLib.Core;
+using NoveLib.Models;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Management.Automation;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NoveLib.Source.Commands
+namespace NoveLib.Commands
 {
     [Cmdlet(VerbsCommon.New, "CipherKey")]
     public class NewCipherKeyCommand : PSCmdlet

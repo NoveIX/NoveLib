@@ -5,7 +5,7 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Text;
 
-namespace NoveLib.Source.Common.Helpers
+namespace NoveLib.Common.Helpers
 {
     internal class FileSystemHelper
     {

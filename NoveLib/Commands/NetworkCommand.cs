@@ -1,8 +1,8 @@
-﻿using NoveLib.Source.Core;
+﻿using NoveLib.Core;
 using System.Management.Automation;
 using System.Net;
 
-namespace NoveLib.Source.Commands
+namespace NoveLib.Commands
 {
     public class NetworkCommand
     {
