@@ -32,13 +32,4 @@ function Invoke-CipherEncrypt {
         $sysMsg = "Encryption failed. $($_.Exception.Message)"
         throw [System.Security.Cryptography.CryptographicException]::new($sysMsg)
     }
-
-    # ==================================================[ Return NoveLib.Cipher ]=================================================== #
-
-    $CipherObject = [Cipher]::new(
-        $KeyPath,
-        $FilePath
-    )
-
-    return $CipherObject
 }
