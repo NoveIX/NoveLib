@@ -1,4 +1,5 @@
-﻿using NoveLib.Common.Enums;
+﻿using NoveLib.Common.Constants;
+using NoveLib.Common.Enums;
 using NoveLib.Common.Helpers;
 using NoveLib.Common.Mappings;
 using NoveLib.Models;
@@ -16,7 +17,7 @@ namespace NoveLib.Core
             if (logDate != LogDate.None) logName += $"_{DateTime.Now.ToString(LogMapping.LogDateMap[logDate])}";
 
             // Add .log extension
-            logName += ".log";
+            logName += LogConstant.LogExtension;
 
             // Combine path and name
             string logFile = Path.Combine(logPath, logName);

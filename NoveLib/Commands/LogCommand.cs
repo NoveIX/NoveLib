@@ -1,4 +1,7 @@
-﻿using NoveLib.Common.Enums;
+﻿using NoveLib.Common.Config;
+using NoveLib.Common.Constants;
+using NoveLib.Common.Context;
+using NoveLib.Common.Enums;
 using NoveLib.Common.Helpers;
 using NoveLib.Core;
 using NoveLib.Models;
@@ -19,15 +22,15 @@ namespace NoveLib.Commands
 
         [Parameter(Position = 2)]
         [ValidateSet("Trace", "Debug", "Info", "Warn", "Error", "Fatal", "Done")]
-        public LogLevel LogLevel { get; set; } = LogLevel.Info;
+        public LogLevel LogLevel { get; set; } = GlobalConfig.LogLevel;
 
         [Parameter(Position = 3)]
         [ValidateSet("Default", "Simple", "Detailed", "Compact", "ISO8601", "Verbose")]
-        public LogFormat LogFormat { get; set; } = LogFormat.Default;
+        public LogFormat LogFormat { get; set; } = GlobalConfig.LogFormat;
 
         [Parameter(Position = 4)]
         [ValidateSet("None", "DateCompact", "DateHyphen", "DateTimeCompact", "DateTimeHyphen")]
-        public LogDate LogDate { get; set; } = LogDate.None;
+        public LogDate LogDate { get; set; } = GlobalConfig.LogDate;
 
         [Parameter(Position = 5)]
         public SwitchParameter ConsolePrint { get; set; }
@@ -38,8 +41,8 @@ namespace NoveLib.Commands
         protected override void ProcessRecord()
         {
             // Handle log path and name
-            string logPath = FileSystemHelper.ResolvePathPS(Path, "logs", this);
-            string logName = FileSystemHelper.ResolveNamePS(Name, "log", this);
+            string logPath = FileSystemHelper.ResolvePathPS(Path, LogConstant.LogPath, this);
+            string logName = FileSystemHelper.ResolveNamePS(Name, LogConstant.LogName, this);
 
             // Get other parameters
             LogLevel logLevel = LogLevel;
@@ -52,14 +55,22 @@ namespace NoveLib.Commands
             LogSetting logSetting = LogCore.CreateLogSetting(logName, logPath, logLevel, logFormat, logDate, consolePrint, setDefault);
 
             // Set as default if specified
-            if (setDefault) Global.DefaultLogSetting = logSetting;
+            if (setDefault) GlobalContext.LogSetting = logSetting;
 
             // Ouptput LogSetting object
             WriteObject(logSetting);
         }
     }
 
-    // ================================================================
+    [Cmdlet(VerbsCommon.Get, "DefaultLogSetting")]
+    public class GetDefaultLogSettingCommand : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Output the current default log setting
+            WriteObject(GlobalContext.LogSetting);
+        }
+    }
 
     [Cmdlet(VerbsCommon.Set, "DefaultLogSetting")]
     public class SetDefaultLogSettingCommand : PSCmdlet
@@ -69,14 +80,12 @@ namespace NoveLib.Commands
         protected override void ProcessRecord()
         {
             // Set the default global log Setting
-            Global.DefaultLogSetting = LogSetting;
+            GlobalContext.LogSetting = LogSetting;
 
             // Optional informational message -Verbose
             WriteVerbose("Default log setting has been updated.");
         }
     }
-
-    // ================================================================
 
     public abstract class WriteLogBase : PSCmdlet
     {
@@ -95,9 +104,9 @@ namespace NoveLib.Commands
         {
             base.ProcessRecord();
 
-            LogSetting logSetting = LogSetting ?? Global.DefaultLogSetting
+            LogSetting logSetting = LogSetting ?? GlobalContext.LogSetting
                 ?? throw new InvalidOperationException(
-                    "DefaultLogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault."
+                    "Default LogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault."
                     );
 
             string file = null;
@@ -117,15 +126,11 @@ namespace NoveLib.Commands
         }
     }
 
-    // ================================================================
-
     [Cmdlet(VerbsCommunications.Write, "LogTrace")]
     public class WriteLogTraceCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Trace;
     }
-
-    // ================================================================
 
     [Cmdlet(VerbsCommunications.Write, "LogDebug")]
     public class WriteLogDebugCommand : WriteLogBase
@@ -133,15 +138,11 @@ namespace NoveLib.Commands
         protected override LogLevel Level => LogLevel.Debug;
     }
 
-    // ================================================================
-
     [Cmdlet(VerbsCommunications.Write, "LogInfo")]
     public class WriteLogInfoCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Info;
     }
-
-    // ================================================================
 
     [Cmdlet(VerbsCommunications.Write, "LogWarn")]
     public class WriteLogWarnCommand : WriteLogBase
@@ -149,23 +150,17 @@ namespace NoveLib.Commands
         protected override LogLevel Level => LogLevel.Warn;
     }
 
-    // ================================================================
-
     [Cmdlet(VerbsCommunications.Write, "LogError")]
     public class WriteLogErrorCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Error;
     }
 
-    // ================================================================
-
     [Cmdlet(VerbsCommunications.Write, "LogFatal")]
     public class WriteLogFatalCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Fatal;
     }
-
-    // ================================================================
 
     [Cmdlet(VerbsCommunications.Write, "LogDone")]
     public class WriteLogDoneCommand : WriteLogBase
