@@ -2,25 +2,35 @@
 
 	<PropertyGroup>
 		<!-- Multi-targeting for PowerShell 5.1 e 7+ -->
-		<TargetFrameworks>net10.0;net48</TargetFrameworks>
+		<TargetFrameworks>net48;net8.0</TargetFrameworks>
 
 		<!-- Common settings -->
 		<OutputType>Library</OutputType>
 		<LangVersion>latest</LangVersion>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>NoveLib</AssemblyName>
 		<RootNamespace>NoveLib</RootNamespace>
 		<PackageId>NoveLib</PackageId>
-  	</PropertyGroup>
+
+		<!-- Separate output for frameworks -->
+		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+	</PropertyGroup>
 
 	<!-- Custom output filename for each framework -->
-	<PropertyGroup>
-		<TargetName>NoveLib.$(TargetFramework)</TargetName>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+		<TargetName>NoveLib.net48</TargetName>
+		<AssemblyTitle>NoveLib</AssemblyTitle>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<TargetName>NoveLib.net8.0</TargetName>
 		<AssemblyTitle>NoveLib</AssemblyTitle>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<!-- PowerShell SDK for PS7+ -->
-		<PackageReference Include="Microsoft.PowerShell.SDK" Version="7.5.4" Condition="'$(TargetFramework)' == 'net10.0'" />
+		<PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.3" Condition="'$(TargetFramework)' == 'net8.0'" />
 
 		<!-- References compatible with Windows PowerShell 5.1 -->
 		<PackageReference Include="Microsoft.PowerShell.5.ReferenceAssemblies" Version="1.1.0" Condition="'$(TargetFramework)' == 'net48'" />
