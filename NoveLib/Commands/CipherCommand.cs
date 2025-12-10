@@ -1,5 +1,7 @@
 ﻿using NoveLib.Common.Helpers;
 using NoveLib.Core;
+using NoveLib.Global.Config;
+using NoveLib.Global.Context;
 using NoveLib.Models;
 using System;
 using System.IO;
@@ -18,6 +20,10 @@ namespace NoveLib.Commands
 
         [Parameter(Position = 1)]
         public string Path { get; set; }
+
+        [Parameter(Position = 2)]
+        [ValidateSet("128", "192", "256")]
+        public string AES { get; set; } = CipherConfig.Keylength;
 
         [Parameter(Position = 2)]
         public SwitchParameter ToBase64 { get; set; }
@@ -50,7 +56,7 @@ namespace NoveLib.Commands
             string keyFile = CipherCore.WriteCipherKeyToFile(keyName, keyPath, keyBytes, toBase64, force, setHidden);
 
             // Set as default if specified
-            if (setDefault) Global.DefaultCipherKey = keyFile;
+            if (setDefault) CipherContext.Key = keyFile;
 
             // Output key file
             WriteObject(keyFile);
@@ -72,7 +78,7 @@ namespace NoveLib.Commands
                 throw new FileNotFoundException("Specified key file does not exist. Please provide a key path or generate a new one using New-CipherKey -SetDefault.", Key);
 
             // Set the default global key
-            Global.DefaultCipherKey = Key;
+            CipherContext.Key = Key;
 
             // Optional informational message -Verbose
             WriteVerbose($"Default cipher key set to: {Key}");
@@ -105,7 +111,7 @@ namespace NoveLib.Commands
         protected override void ProcessRecord()
         {
             // Determine cipher key file
-            string keyFile = Key ?? Global.DefaultCipherKey
+            string keyFile = Key ?? CipherContext.Key
                 ?? throw new InvalidOperationException(
                     "Default Cipher Key is not set. Please provide a key path or generate a new one using New-CipherKey -SetDefault."
                     );
@@ -216,7 +222,7 @@ namespace NoveLib.Commands
 
             if (ParameterSetName == "File")
             {
-                keyFile = Key ?? Global.DefaultCipherKey
+                keyFile = Key ?? CipherContext.Key
                     ?? throw new InvalidOperationException(
                         "Default Cipher Key is not set. Please provide a Key path or set a default one using New-CipherKey -SetDefault."
                     );

@@ -1,9 +1,9 @@
-﻿using NoveLib.Common.Config;
-using NoveLib.Common.Constants;
-using NoveLib.Common.Context;
-using NoveLib.Common.Enums;
+﻿using NoveLib.Common.Enums;
 using NoveLib.Common.Helpers;
 using NoveLib.Core;
+using NoveLib.Global.Config;
+using NoveLib.Global.Constants;
+using NoveLib.Global.Context;
 using NoveLib.Models;
 using System;
 using System.IO;
@@ -22,15 +22,15 @@ namespace NoveLib.Commands
 
         [Parameter(Position = 2)]
         [ValidateSet("Trace", "Debug", "Info", "Warn", "Error", "Fatal", "Done")]
-        public LogLevel LogLevel { get; set; } = GlobalConfig.LogLevel;
+        public LogLevel LogLevel { get; set; } = LogConfig.LogLevel;
 
         [Parameter(Position = 3)]
         [ValidateSet("Default", "Simple", "Detailed", "Compact", "ISO8601", "Verbose")]
-        public LogFormat LogFormat { get; set; } = GlobalConfig.LogFormat;
+        public LogFormat LogFormat { get; set; } = LogConfig.LogFormat;
 
         [Parameter(Position = 4)]
         [ValidateSet("None", "DateCompact", "DateHyphen", "DateTimeCompact", "DateTimeHyphen")]
-        public LogDate LogDate { get; set; } = GlobalConfig.LogDate;
+        public LogDate LogDate { get; set; } = LogConfig.LogDate;
 
         [Parameter(Position = 5)]
         public SwitchParameter ConsolePrint { get; set; }
@@ -55,7 +55,7 @@ namespace NoveLib.Commands
             LogSetting logSetting = LogCore.CreateLogSetting(logName, logPath, logLevel, logFormat, logDate, consolePrint, setDefault);
 
             // Set as default if specified
-            if (setDefault) GlobalContext.LogSetting = logSetting;
+            if (setDefault) LogContext.LogSetting = logSetting;
 
             // Ouptput LogSetting object
             WriteObject(logSetting);
@@ -68,7 +68,7 @@ namespace NoveLib.Commands
         protected override void ProcessRecord()
         {
             // Output the current default log setting
-            WriteObject(GlobalContext.LogSetting);
+            WriteObject(LogContext.LogSetting);
         }
     }
 
@@ -80,7 +80,7 @@ namespace NoveLib.Commands
         protected override void ProcessRecord()
         {
             // Set the default global log Setting
-            GlobalContext.LogSetting = LogSetting;
+            LogContext.LogSetting = LogSetting;
 
             // Optional informational message -Verbose
             WriteVerbose("Default log setting has been updated.");
@@ -104,7 +104,7 @@ namespace NoveLib.Commands
         {
             base.ProcessRecord();
 
-            LogSetting logSetting = LogSetting ?? GlobalContext.LogSetting
+            LogSetting logSetting = LogSetting ?? LogContext.LogSetting
                 ?? throw new InvalidOperationException(
                     "Default LogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault."
                     );

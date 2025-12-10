@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NoveLib.Global.Constants;
+using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -9,10 +10,10 @@ namespace NoveLib.Core
     internal class CipherCore
     {
         // Create a new random AES-256 cipher key
-        internal static byte[] CreateCipherKey()
+        internal static byte[] CreateCipherKey(int keySize)
         {
             // Create a empty byte key
-            byte[] keyBytes = new byte[32];
+            byte[] keyBytes = new byte[keySize];
 
             // Use different method to randomize key bytes
 #if NET6_0_OR_GREATER
@@ -32,7 +33,7 @@ namespace NoveLib.Core
         internal static string WriteCipherKeyToFile(string keyName, string keyPath, byte[] keyBytes, bool toBase64, bool force, bool hideKey)
         {
             // add .key extension
-            keyName += ".key";
+            keyName += CipherConstant.KeyExtension;
 
             // Create directory
             if (!Directory.Exists(keyPath)) Directory.CreateDirectory(keyPath);

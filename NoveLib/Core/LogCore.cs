@@ -1,7 +1,7 @@
-﻿using NoveLib.Common.Constants;
-using NoveLib.Common.Enums;
+﻿using NoveLib.Common.Enums;
 using NoveLib.Common.Helpers;
 using NoveLib.Common.Mappings;
+using NoveLib.Global.Constants;
 using NoveLib.Models;
 using System;
 using System.IO;
