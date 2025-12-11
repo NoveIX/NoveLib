@@ -1,29 +1,24 @@
 ﻿using NoveLib.Common.Helpers;
 using NoveLib.Core;
 using NoveLib.Global.Config;
+using NoveLib.Global.Constants;
 using NoveLib.Global.Context;
 using NoveLib.Models;
 using System;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Security.Cryptography;
 using System.Text;
-
+/*
 namespace NoveLib.Commands
 {
     [Cmdlet(VerbsCommon.New, "CipherKey")]
     public class NewCipherKeyCommand : PSCmdlet
     {
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "File")]
         public string Name { get; set; }
 
-        [Parameter(Position = 1)]
+        [Parameter(Position = 1, ParameterSetName = "File")]
         public string Path { get; set; }
-
-        [Parameter(Position = 2)]
-        [ValidateSet("128", "192", "256")]
-        public string AES { get; set; } = CipherConfig.Keylength;
 
         [Parameter(Position = 2)]
         public SwitchParameter ToBase64 { get; set; }
@@ -32,38 +27,75 @@ namespace NoveLib.Commands
         public SwitchParameter Force { get; set; }
 
         [Parameter(Position = 4)]
-        public SwitchParameter SetDefault { get; set; }
-
-        [Parameter(Position = 5)]
-        public SwitchParameter SetHidden { get; set; }
+        [ValidateSet("128", "192", "256")]
+        public string AES { get; set; } = CipherConfig.Keylength;
 
         protected override void ProcessRecord()
         {
-            // Handle cipher key path and name
-            string keyPath = FileSystemHelper.ResolvePathPS(Path, "cred", this);
-            string keyName = FileSystemHelper.ResolveNamePS(Name, "AES256", this);
+            // Determine key size
+            int keyBytesSize = AES switch
+            {
+                "128" => 16,
+                "192" => 24,
+                "256" => 32,
+                _ => 32,
+            };
 
             // Get other parameters
             bool toBase64 = ToBase64.IsPresent;
             bool force = Force.IsPresent;
-            bool setDefault = SetDefault.IsPresent;
-            bool setHidden = SetHidden.IsPresent;
 
             // Generate cipher key bytes
-            byte[] keyBytes = CipherCore.CreateCipherKey();
+            byte[] keyBytes = CipherCore.CreateCipherKey(keyBytesSize);
 
             // Create chiper key file
-            string keyFile = CipherCore.WriteCipherKeyToFile(keyName, keyPath, keyBytes, toBase64, force, setHidden);
+            string keyFile = CipherCore.WriteCipherKeyToFile(keyName, keyPath, keyBytes, toBase64, force);
 
-            // Set as default if specified
-            if (setDefault) CipherContext.Key = keyFile;
+            // Set as default cipehr key
+            CipherContext.KeyFile = keyFile;
 
             // Output key file
-            WriteObject(keyFile);
+            WriteObject(new FileInfo(keyFile));
+        }
+
+        private void NewKey()
+        {
+            int keyBytesSize = AES switch
+            {
+                "128" => 16,
+                "192" => 24,
+                "256" => 32,
+                _ => 32,
+            };
+        }
+
+        private void ProcessFile()
+        {
+            string keyPath = FileSystemHelper.ResolvePathPS(Path, CipherConstant.CipherDir, this);
+            string keyName = Name ?? AES switch
+            {
+                "128" => "AES128",
+                "192" => "AES192",
+                "256" => "AES256",
+                _ => "AES256",
+            };
         }
     }
 
-    // ================================================================
+
+
+    [Cmdlet(VerbsCommon.Get, "DefaultCipherKey")]
+    public class GetDefaultCipherKeyCommand : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Output the key file
+            if (CipherContext.KeyFile == null) return;
+            else WriteObject(new FileInfo(CipherContext.KeyFile));
+        }
+    }
+
+
 
     [Cmdlet(VerbsCommon.Set, "DefaultCipherKey")]
     public class SetDefaultCipherKeyCommand : PSCmdlet
@@ -78,14 +110,14 @@ namespace NoveLib.Commands
                 throw new FileNotFoundException("Specified key file does not exist. Please provide a key path or generate a new one using New-CipherKey -SetDefault.", Key);
 
             // Set the default global key
-            CipherContext.Key = Key;
+            CipherContext.KeyFile = Key;
 
             // Optional informational message -Verbose
             WriteVerbose($"Default cipher key set to: {Key}");
         }
     }
 
-    // ================================================================
+
 
     [Cmdlet(VerbsSecurity.Protect, "Text")]
     public class ProtectTextCommand : PSCmdlet
@@ -94,10 +126,7 @@ namespace NoveLib.Commands
         public string InputString { get; set; }
 
         [Parameter(Position = 1)]
-        public string Name { get; set; }
-
-        [Parameter(Position = 2)]
-        public string Path { get; set; }
+        public string OutFile { get; set; }
 
         [Parameter(Position = 3)]
         public string Key { get; set; }
@@ -105,13 +134,10 @@ namespace NoveLib.Commands
         [Parameter(Position = 4)]
         public SwitchParameter ToBase64 { get; set; }
 
-        [Parameter(Position = 5)]
-        public SwitchParameter SetDefault { get; set; }
-
         protected override void ProcessRecord()
         {
             // Determine cipher key file
-            string keyFile = Key ?? CipherContext.Key
+            string keyFile = Key ?? CipherContext.KeyFile
                 ?? throw new InvalidOperationException(
                     "Default Cipher Key is not set. Please provide a key path or generate a new one using New-CipherKey -SetDefault."
                     );
@@ -120,16 +146,29 @@ namespace NoveLib.Commands
             if (!File.Exists(keyFile))
                 throw new FileNotFoundException($"Cipher key file not found. Path: {keyFile}", keyFile);
 
+            if (string.IsNullOrWhiteSpace(OutFile) && !File.Exists(OutFile))
+            {
+                string outPath = Path.GetDirectoryName(OutFile);
+                if (!Directory.Exists(outPath))
+                    Directory.CreateDirectory(outPath);
+            }
+            else
+            {
+                string outPath = FileSystemHelper.ResolvePathPS(null, CipherConstant.AuthDir, this);
+                //string outName = 
+            }
+
+
+                // Get other parameters
+                bool toBase64 = ToBase64.IsPresent;
+
             // Read key and encrypt input string
             byte[] keyBytes = CipherCore.ReadCipherKeyFromFile(keyFile);
             byte[] encryptedBytes = CipherCore.EncryptToBytes(InputString, keyBytes);
 
-            // Get other parameters
-            bool asBase64 = ToBase64.IsPresent;
-            bool setDefault = SetDefault.IsPresent;
 
             // Determinate output type
-            object output = asBase64 ? Convert.ToBase64String(encryptedBytes) : encryptedBytes;
+            object output = toBase64 ? Convert.ToBase64String(encryptedBytes) : encryptedBytes;
 
             // Create new empty cipher Setting
             CipherSetting cipherSetting = new();
@@ -161,149 +200,14 @@ namespace NoveLib.Commands
             }
 
             // Set key file
-            cipherSetting.KeyFile = keyFile;
+            //cipherSetting.KeyFile = keyFile.FullName;
 
             // Set as default if specified
-            if (setDefault) Global.DefaultCipherSetting = cipherSetting;
+            //if (setDefault) Global.DefaultCipherSetting = cipherSetting;
 
             // Return cipher setting
             WriteObject(cipherSetting);
         }
     }
-
-    // ================================================================
-
-    /*
-    [Cmdlet(VerbsSecurity.Unprotect, "Text")]
-    public class UnprotectTextCommand : PSCmdlet
-    {
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "File")]
-        public string TextFile { get; set; }
-
-        [Parameter(Position = 1, ParameterSetName = "File")]
-        public string Key { get; set; }
-
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "Cipher")]
-        public CipherSetting CipherSetting { get; set; }
-
-        protected override void BeginProcessing()
-        {
-            // Determine cipher key file
-            string keyFile = Key ?? Global.DefaultCipherKey
-                ?? throw new InvalidOperationException(
-                    "Default Cipher Key is not set. Please provide a Key path or set a default one using New-CipherKey -SetDefault."
-                    );
-
-            // Validate key file existence
-            if (!File.Exists(keyFile))
-                throw new FileNotFoundException("Cipher key file not found.", keyFile);
-        }
-    }
-    */
-    [Cmdlet(VerbsSecurity.Unprotect, "Text")]
-    public class UnprotectTextCommand : PSCmdlet
-    {
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "File")]
-        public string TextFile { get; set; }
-
-        [Parameter(Position = 1, ParameterSetName = "File")]
-        public string Key { get; set; }
-
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "Cipher")]
-        public CipherSetting CipherSetting { get; set; }
-
-        [Parameter()]
-        public SwitchParameter InputIsBase64 { get; set; }
-
-        protected override void BeginProcessing()
-        {
-            // Determina file della chiave
-            string keyFile;
-
-            if (ParameterSetName == "File")
-            {
-                keyFile = Key ?? CipherContext.Key
-                    ?? throw new InvalidOperationException(
-                        "Default Cipher Key is not set. Please provide a Key path or set a default one using New-CipherKey -SetDefault."
-                    );
-
-                if (!File.Exists(keyFile))
-                    throw new FileNotFoundException("Cipher key file not found.", keyFile);
-            }
-            else // ParameterSetName == "Cipher"
-            {
-                if (CipherSetting == null)
-                    throw new InvalidOperationException("CipherSetting cannot be null.");
-                if (!File.Exists(CipherSetting.KeyFile))
-                    throw new FileNotFoundException("Cipher key file not found.", CipherSetting.KeyFile);
-
-                keyFile = CipherSetting.KeyFile;
-            }
-
-            _keyFile = keyFile; // campo privato della classe per ProcessRecord
-        }
-
-        private string _keyFile;
-
-        protected override void ProcessRecord()
-        {
-            byte[] keyBytes = File.ReadAllBytes(_keyFile);
-            byte[] cipherBytes;
-
-            if (ParameterSetName == "File")
-            {
-                if (InputIsBase64)
-                {
-                    string base64 = File.ReadAllText(TextFile, Encoding.UTF8);
-                    cipherBytes = Convert.FromBase64String(base64);
-                }
-                else
-                {
-                    cipherBytes = File.ReadAllBytes(TextFile);
-                }
-            }
-            else
-            {
-                cipherBytes = CipherSetting.CipherData switch
-                {
-                    byte[] b => b,
-                    string s when InputIsBase64 => Convert.FromBase64String(s),
-                    string s => Encoding.UTF8.GetBytes(s),
-                    _ => throw new InvalidOperationException("Unsupported CipherData type in CipherSetting")
-                };
-            }
-
-            string plainText = DecryptFromBytes(cipherBytes, keyBytes);
-
-            if (ParameterSetName == "File" && !string.IsNullOrWhiteSpace(TextFile))
-            {
-                string outputPath = FileSystemHelper.ResolvePathPS(TextFile, "decrypted", this);
-                File.WriteAllText(outputPath, plainText, Encoding.UTF8);
-                WriteObject(outputPath);
-            }
-            else
-            {
-                WriteObject(plainText);
-            }
-        }
-
-        private string DecryptFromBytes(byte[] cipherText, byte[] key)
-        {
-            using var aes = Aes.Create();
-            aes.Key = key;
-
-            // Primi 16 byte come IV
-            byte[] iv = cipherText.Take(16).ToArray();
-            byte[] actualCipher = cipherText.Skip(16).ToArray();
-            aes.IV = iv;
-
-            using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-            using var ms = new MemoryStream(actualCipher);
-            using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
-            using var reader = new StreamReader(cs, Encoding.UTF8);
-
-            return reader.ReadToEnd();
-        }
-    }
-
 }
+*/

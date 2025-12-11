@@ -10,7 +10,6 @@ namespace NoveLib.Core
 {
     internal class LogCore
     {
-        // Create LogSetting object based on parameters
         internal static LogSetting CreateLogSetting(string logName, string logPath, LogLevel logLevel, LogFormat logFormat, LogDate logDate, bool consolePrint, bool setDefault)
         {
             // Add date to log name
@@ -26,9 +25,27 @@ namespace NoveLib.Core
             return new LogSetting(logFile, logLevel, logFormat, consolePrint, setDefault);
         }
 
-        // ================================================================
+        internal static void LogConsolePrint(LogLevel logLevel, string logLine)
+        {
+            string level = LogMapping.logLevelMap[logLevel];
+            int levelIndex = logLine.IndexOf(level);
 
-        // Write log message to file
+            // Split log line into three parts: before level, level, after level
+#if NET6_0_OR_GREATER
+            string before = logLine[..levelIndex];
+            string after = logLine[(levelIndex + level.Length)..];
+#else
+            string before = logLine.Substring(0, levelIndex);
+            string after = logLine.Substring(levelIndex + level.Length);
+#endif
+
+            Console.Write(before);
+            Console.ForegroundColor = LogMapping.LogColorMap[logLevel];
+            Console.Write(level);
+            Console.ResetColor();
+            Console.WriteLine(after);
+        }
+
         internal static void WriteLog(LogLevel logLevel, string message, LogSetting logSetting, bool print, string context, string file, int line)
         {
             // Check log level
@@ -42,7 +59,7 @@ namespace NoveLib.Core
             string logLine = LogMapping.LogLineMap[logSetting.LogFormat](timestamp, LogMapping.logLevelMap[logLevel], context, message, file, line);
 
             // Print to console if enabled
-            if (logSetting.ConsolePrint || print) ConsoleHelper.LogConsolePrint(logLevel, logLine);
+            if (logSetting.ConsolePrint || print) LogConsolePrint(logLevel, logLine);
 
             // Write to file
             Directory.CreateDirectory(Path.GetDirectoryName(logSetting.LogFile)!);

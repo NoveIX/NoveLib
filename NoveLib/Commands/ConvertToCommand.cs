@@ -12,7 +12,7 @@ namespace NoveLib.Commands
 
         [Parameter(Position = 1)]
         [ValidateRange(0, 10)]
-        public int DecimalPlace { get; set; } = ConvertConfig.DecimalPlace;
+        public int DecimalPlace { get; set; } = GenericConfig.DecimalPlace;
 
         protected override void ProcessRecord()
         {

@@ -11,35 +11,37 @@ namespace NoveLib.Common.Helpers
     {
         internal static string ResolvePathPS(string path, string dir, PSCmdlet cmdlet)
         {
-            string psFile = cmdlet.MyInvocation.ScriptName;
-            string whereAmI = cmdlet.SessionState.Path.CurrentFileSystemLocation.Path;
+            // Get current directory
+            string pwd = cmdlet.SessionState.Path.CurrentFileSystemLocation.Path;
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                // Take base path from script location or current location
+                // Get script name
+                string psFile = cmdlet.MyInvocation.ScriptName;
+
+                // Use script directory or current dir
                 string basePath = !string.IsNullOrEmpty(psFile)
                     ? Path.GetDirectoryName(psFile)
-                    : whereAmI;
+                    : pwd;
 
-                // Construct default log path
+                // Combine with default dir
                 path = Path.Combine(basePath, dir);
             }
 
             // Convert to absolute path if relative
-            else if (!Path.IsPathRooted(path)) path = Path.GetFullPath(Path.Combine(whereAmI, path));
+            else if (!Path.IsPathRooted(path)) path = Path.GetFullPath(Path.Combine(pwd, path));
 
             return path;
         }
 
-        // ================================================================
-
         internal static string ResolveNamePS(string file, string name, PSCmdlet cmdlet)
         {
-            string psFile = cmdlet.MyInvocation.ScriptName;
-
             if (string.IsNullOrWhiteSpace(file))
             {
-                // Get log name from script name or default
+                // Get script name
+                string psFile = cmdlet.MyInvocation.ScriptName;
+
+                // Use script name or default name
                 file = !string.IsNullOrWhiteSpace(psFile)
                     ? Path.GetFileNameWithoutExtension(psFile)
                     : name; // Default name
@@ -53,8 +55,6 @@ namespace NoveLib.Common.Helpers
 
             return file;
         }
-
-        // ================================================================
 
         internal static void AppendText(string path, string text)
         {

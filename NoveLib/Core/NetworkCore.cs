@@ -42,9 +42,6 @@ namespace NoveLib.Core
             return new IPAddress(bytes);
         }
 
-
-        // ================================================================
-
         public static int MaskToCidrIPv4(IPAddress mask)
         {
             if (mask == null) throw new ArgumentNullException(nameof(mask));

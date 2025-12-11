@@ -62,15 +62,20 @@ namespace NoveLib.Commands
         }
     }
 
+
+
     [Cmdlet(VerbsCommon.Get, "DefaultLogSetting")]
     public class GetDefaultLogSettingCommand : PSCmdlet
     {
         protected override void ProcessRecord()
         {
             // Output the current default log setting
-            WriteObject(LogContext.LogSetting);
+            if (LogContext.LogSetting == null) return;
+            else WriteObject(LogContext.LogSetting);
         }
     }
+
+
 
     [Cmdlet(VerbsCommon.Set, "DefaultLogSetting")]
     public class SetDefaultLogSettingCommand : PSCmdlet
@@ -87,6 +92,8 @@ namespace NoveLib.Commands
         }
     }
 
+
+
     public abstract class WriteLogBase : PSCmdlet
     {
         protected abstract LogLevel Level { get; }
@@ -102,8 +109,6 @@ namespace NoveLib.Commands
 
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-
             LogSetting logSetting = LogSetting ?? LogContext.LogSetting
                 ?? throw new InvalidOperationException(
                     "Default LogSetting is not set. Please provide a LogSetting object or set a default one using New-LogSetting -SetDefault."
@@ -126,11 +131,15 @@ namespace NoveLib.Commands
         }
     }
 
+
+
     [Cmdlet(VerbsCommunications.Write, "LogTrace")]
     public class WriteLogTraceCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Trace;
     }
+
+
 
     [Cmdlet(VerbsCommunications.Write, "LogDebug")]
     public class WriteLogDebugCommand : WriteLogBase
@@ -138,11 +147,15 @@ namespace NoveLib.Commands
         protected override LogLevel Level => LogLevel.Debug;
     }
 
+
+
     [Cmdlet(VerbsCommunications.Write, "LogInfo")]
     public class WriteLogInfoCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Info;
     }
+
+
 
     [Cmdlet(VerbsCommunications.Write, "LogWarn")]
     public class WriteLogWarnCommand : WriteLogBase
@@ -150,17 +163,23 @@ namespace NoveLib.Commands
         protected override LogLevel Level => LogLevel.Warn;
     }
 
+
+
     [Cmdlet(VerbsCommunications.Write, "LogError")]
     public class WriteLogErrorCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Error;
     }
 
+
+
     [Cmdlet(VerbsCommunications.Write, "LogFatal")]
     public class WriteLogFatalCommand : WriteLogBase
     {
         protected override LogLevel Level => LogLevel.Fatal;
     }
+
+
 
     [Cmdlet(VerbsCommunications.Write, "LogDone")]
     public class WriteLogDoneCommand : WriteLogBase
